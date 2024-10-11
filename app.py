@@ -13,7 +13,7 @@ def get_posts():
 
 @app.post('/posts')
 def create_post(data):
-
+    return data
 
 
 
