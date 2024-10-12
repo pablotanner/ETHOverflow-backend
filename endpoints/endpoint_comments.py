@@ -57,7 +57,7 @@ def get_comments(question_id, answer_id):
         "content": c.content,
         "date_commented": c.date_commented,
         "date_last_edited": c.date_last_edited,
-        "created_by": c.created_by
+        "created_by": c.created_by,
         "total_vote_count": total_vote_count,
         "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
     })
