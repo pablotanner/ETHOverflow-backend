@@ -29,7 +29,7 @@ class Question(db.Model):
     created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
-    tags = db.Column(ARRAY(db.Integer), nullable=False)
+    tags = db.Column(ARRAY(db.String), nullable=False)
 
 
 class Tag(db.Model):

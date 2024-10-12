@@ -210,14 +210,14 @@ def seed_db():
         {
             "title": "How to use Flask with PostgreSQL?",
             "content": "I need help with setting up Flask and PostgreSQL.",
-            "created_by": "jdoe",
-            "tags": [1, 2, 4],  # Assuming IDs of tags
+            "created_by": "jdoe@example.com",
+            "tags": ["Python", "Flask", "PostgreSQL"],  # Assuming IDs of tags
         },
         {
             "title": "What is SQLAlchemy?",
             "content": "Can someone explain SQLAlchemy ORM?",
-            "created_by": "asmith",
-            "tags": [3, 4],
+            "created_by": "asmith@example.com",
+            "tags": ["SQLAlchemy", "PostgreSQL"],
         },
     ]
 
@@ -236,12 +236,12 @@ def seed_db():
     answers = [
         {
             "content": "You can use the psycopg2 library.",
-            "created_by": "bwilliams",
+            "created_by": "bwilliams@example.com",
             "question_id": Question.query.first().question_id,
         },
         {
             "content": "SQLAlchemy is an ORM for Python.",
-            "created_by": "jdoe",
+            "created_by": "jdoe@example.com",
             "question_id": Question.query.filter_by(title="What is SQLAlchemy?")
             .first()
             .question_id,
@@ -262,12 +262,12 @@ def seed_db():
     comments = [
         {
             "content": "Thanks for the answer!",
-            "created_by": "asmith",
+            "created_by": "asmith@example.com",
             "answer_id": Answer.query.first().answer_id,
         },
         {
             "content": "This is very helpful.",
-            "created_by": "bwilliams",
+            "created_by": "bwilliams@example.com",
             "question_id": Question.query.filter_by(
                 title="How to use Flask with PostgreSQL?"
             )
@@ -291,12 +291,12 @@ def seed_db():
     votes = [
         {
             "vote_type": 1,  # upvote
-            "created_by": "jdoe",
+            "created_by": "jdoe@example.com",
             "question_id": Question.query.first().question_id,
         },
         {
             "vote_type": -1,  # downvote
-            "created_by": "asmith",
+            "created_by": "asmith@example.com",
             "answer_id": Answer.query.first().answer_id,
         },
     ]
