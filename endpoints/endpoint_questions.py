@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
+import endpoint_users
 
 blueprint_questions = Blueprint("questions", __name__)
 
@@ -49,7 +50,7 @@ def post_question():
         content=data['content'],
         date_asked=datetime.now(),  # Set date with timezone
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by'],  # Use created_by as per schema
+        created_by=endpoint_users.get_current_user(),
         tags=data.get('tags', [])  # Assign tags if provided, otherwise empty
     )
     db.session.add(new_question)
