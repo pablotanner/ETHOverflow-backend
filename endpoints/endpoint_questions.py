@@ -172,17 +172,23 @@ def get_questions():
     questions = query.limit(limit).all()
 
     # Convert results to JSON
-    questions_list = [{
-        "id": q.question_id,
-        "title": q.title,
-        "content": q.content,
-        "date_asked": q.date_asked,
-        "date_last_edited": q.date_last_edited,
-        "date_closed": q.date_closed,
-        "created_by": q.created_by,
-        "reputation": endpoint_votes.get_question_vote_count(q.question_id).get_json()['total_vote_count'],
-        "tags": [Tag.query.get(tag).name for tag in q.tags]
-    } for q in questions]
+    questions_list = []
+    for q in questions:
+        user_vote = Vote.query.filter_by(question_id=q.question_id, created_by=endpoint_users.get_current_user().get_json()['email']).first()
+        user_vote = user_vote.vote_type if user_vote else None
+        
+        questions_list.append({
+            "id": q.question_id,
+            "title": q.title,
+            "content": q.content,
+            "date_asked": q.date_asked,
+            "date_last_edited": q.date_last_edited,
+            "date_closed": q.date_closed,
+            "created_by": q.created_by,
+            "user_vote_type": user_vote,
+            "reputation": endpoint_votes.get_question_vote_count(q.question_id).get_json()['total_vote_count'],
+            "tags": [Tag.query.get(tag).name for tag in q.tags]
+        })
 
     return jsonify(questions_list)
 
