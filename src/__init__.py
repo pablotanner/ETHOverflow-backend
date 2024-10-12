@@ -13,13 +13,13 @@ def create_app():
     # Initialize database and migration
     init_db(app)
 
-    @app.route('/test', methods=['GET'])
+    @app.route('/api/test', methods=['GET'])
     def test_route():
         users = db.session.execute(db.select(User))
         return users
 
     # Endpoint to get question specified by question_id
-    @app.route('/questions', methods=['GET'])
+    @app.route('/api/questions', methods=['GET'])
     def get_questions():
         # Get query parameters
         limit = request.args.get('limit', default=10, type=int)
@@ -50,7 +50,7 @@ def create_app():
         return jsonify(questions_list)
 
     # Endpoint to post a new question
-    @app.route('/questions', methods=['POST'])
+    @app.route('/api/questions', methods=['POST'])
     def post_question():
         data = request.get_json()
         new_question = Question(
@@ -67,7 +67,7 @@ def create_app():
         return jsonify({"message": "Question posted successfully!", "question_id": new_question.question_id}), 201
 
     # Endpoint to post an answer to a question
-    @app.route('/questions/<string:question_id>/answers', methods=['POST'])
+    @app.route('/api/questions/<string:question_id>/answers', methods=['POST'])
     def post_answer(question_id):
         data = request.get_json()
         new_answer = Answer(
