@@ -11,7 +11,7 @@ def create_app():
     app.config.from_object(Config)
 
     # Initialize database and migration
-    # init_db(app)
+    init_db(app)
 
     @app.route('/test', methods=['GET'])
     def test_route():
