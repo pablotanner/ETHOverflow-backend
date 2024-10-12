@@ -16,8 +16,9 @@ def create_app():
 
     @app.route("/api/test", methods=["GET"])
     def test_route():
-        users = db.session.execute(db.select(User))
-        return users
+        users = User.query.all()
+
+        return jsonify([dict(user) for user in users])
 
     # Endpoint to get question specified by question_id
     @app.route("/api/questions", methods=["GET"])
