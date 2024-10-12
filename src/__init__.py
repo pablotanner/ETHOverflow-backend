@@ -159,7 +159,6 @@ def seed_db():
             "display_name": "John Doe",
             "date_joined": datetime.datetime.utcnow(),
             "date_last_login": datetime.datetime.utcnow(),
-            "reputation": 100,
         },
         {
             "username": "asmith",
@@ -167,7 +166,6 @@ def seed_db():
             "display_name": "Alice Smith",
             "date_joined": datetime.datetime.utcnow(),
             "date_last_login": datetime.datetime.utcnow(),
-            "reputation": 150,
         },
         {
             "username": "bwilliams",
@@ -175,7 +173,6 @@ def seed_db():
             "display_name": "Bob Williams",
             "date_joined": datetime.datetime.utcnow(),
             "date_last_login": datetime.datetime.utcnow(),
-            "reputation": 200,
         },
     ]
 
@@ -187,7 +184,6 @@ def seed_db():
             display_name=user_data["display_name"],
             date_joined=user_data["date_joined"],
             date_last_login=user_data["date_last_login"],
-            reputation=user_data["reputation"],
         )
         db.session.add(user)
     db.session.commit()

@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
+from endpoints.endpoint_votes import get_user_vote_count
 
 
 blueprint_users = Blueprint("users", __name__)
@@ -35,11 +36,7 @@ def get_users():
         "display_name": q.display_name,
         "date_joined": q.date_joined,
         "date_last_login": q.date_last_login,
-        "reputation": q.reputation,
-        "total_questions": q.total_questions,
-        "total_answers": q.total_answers,
-        "total_comments": q.total_comments,
-        "total_votes": q.total_votes,
+        "reputation": get_user_vote_count(q.email).get_json()['total_vote_count'],
     } for q in users]
 
     return jsonify(users_list)
@@ -111,11 +108,6 @@ def get_current_user():
             display_name=request.headers['X-authentik-name'],
             date_joined=datetime.now(),  # Automatically set the join date
             date_last_login=datetime.now(),  # Set last login to current time on account creation
-            reputation=0,  # Start with default reputation
-            total_questions=0,
-            total_answers=0,
-            total_comments=0,
-            total_votes=0
         )
         db.session.add(user)
         db.session.commit()
@@ -126,10 +118,6 @@ def get_current_user():
         "display_name": user.display_name,
         "date_joined": user.date_joined,
         "date_last_login": user.date_last_login,
-        "reputation": user.reputation,
-        "total_questions": user.total_questions,
-        "total_answers": user.total_answers,
-        "total_comments": user.total_comments,
-        "total_votes": user.total_votes,
+        "reputation": get_user_vote_count(user.email).get_json()['total_vote_count'],
     }
     return jsonify(user_json)

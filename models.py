@@ -12,11 +12,6 @@ class User(db.Model):
     display_name = db.Column(db.String, nullable=False)
     date_joined = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_last_login = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    reputation = db.Column(db.Integer, nullable=False, default=0)
-    total_questions = db.Column(db.Integer, nullable=False, default=0)
-    total_answers = db.Column(db.Integer, nullable=False, default=0)
-    total_comments = db.Column(db.Integer, nullable=False, default=0)
-    total_votes = db.Column(db.Integer, nullable=False, default=0)
 
 
 class Question(db.Model):
@@ -29,7 +24,7 @@ class Question(db.Model):
     created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
-    tags = db.Column(ARRAY(db.String), nullable=False)
+    tags = db.Column(ARRAY(db.String), nullable=True)
 
 
 class Tag(db.Model):

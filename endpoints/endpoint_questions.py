@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
-from endpoints import endpoint_users
+from endpoints import endpoint_users, endpoint_votes
 
 blueprint_questions = Blueprint("questions", __name__)
 
@@ -27,8 +27,7 @@ def get_question(question_id):
     # Loop through each answer to get its details and vote count
     for c in comments:
         # Calculate the total vote count
-        total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_comment_vote_count(c.comment_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
@@ -49,13 +48,9 @@ def get_question(question_id):
                 "email": creator.email,
                 "username": creator.username,
                 "display_name": creator.display_name,
-                "reputation": creator.reputation,
+                "reputation": endpoint_users.get_user_vote_count(c.created_by).get_json()['total_vote_count'],
                 "date_joined": creator.date_joined,
                 "date_last_login": creator.date_last_login,
-                "total_questions": creator.total_questions,
-                "total_answers": creator.total_answers,
-                "total_comments": creator.total_comments,
-                "total_votes": creator.total_votes
             },
                 
         })
@@ -66,8 +61,7 @@ def get_question(question_id):
 
     for a in answers:
         # Calculate the total vote count
-        total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_answer_vote_count(a.answer_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=a.answer_id).first()
@@ -79,8 +73,7 @@ def get_question(question_id):
         # Loop through each answer to get its details and vote count
         for c in comments:
             # Calculate the total vote count
-            total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
-            total_vote_count = total_vote_count if total_vote_count is not None else 0
+            total_vote_count = endpoint_votes.get_comment_vote_count(c.comment_id).get_json()['total_vote_count']
 
             # Check if current user has voted on this answer
             user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
@@ -101,13 +94,9 @@ def get_question(question_id):
                     "email": creator.email,
                     "username": creator.username,
                     "display_name": creator.display_name,
-                    "reputation": creator.reputation,
+                    "reputation": endpoint_users.get_user_vote_count(c.created_by).get_json()['total_vote_count'],
                     "date_joined": creator.date_joined,
                     "date_last_login": creator.date_last_login,
-                    "total_questions": creator.total_questions,
-                    "total_answers": creator.total_answers,
-                    "total_comments": creator.total_comments,
-                    "total_votes": creator.total_votes
                 },
             })
 
@@ -126,13 +115,9 @@ def get_question(question_id):
                 "email": creator.email,
                 "username": creator.username,
                 "display_name": creator.display_name,
-                "reputation": creator.reputation,
+                "reputation": endpoint_users.get_user_vote_count(c.created_by).get_json()['total_vote_count'],
                 "date_joined": creator.date_joined,
                 "date_last_login": creator.date_last_login,
-                "total_questions": creator.total_questions,
-                "total_answers": creator.total_answers,
-                "total_comments": creator.total_comments,
-                "total_votes": creator.total_votes
             },
         })
 
@@ -148,7 +133,7 @@ def get_question(question_id):
         "date_last_edited": query.date_last_edited,
         "date_closed": query.date_closed,
         "created_by": query.created_by,
-        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=query.question_id).scalar(),
+        "reputation": endpoint_votes.get_question_vote_count(query.question_id).get_json()['total_vote_count'],
         "tags": [Tag.query.get(tag).name for tag in query.tags],
         "comments_of_questions_list": comments_of_questions_list,
         "answers_list": answers_list,
@@ -156,13 +141,9 @@ def get_question(question_id):
             "email": creator.email,
             "username": creator.username,
             "display_name": creator.display_name,
-            "reputation": creator.reputation,
+            "reputation": endpoint_users.get_user_vote_count(c.created_by).get_json()['total_vote_count'],
             "date_joined": creator.date_joined,
             "date_last_login": creator.date_last_login,
-            "total_questions": creator.total_questions,
-            "total_answers": creator.total_answers,
-            "total_comments": creator.total_comments,
-            "total_votes": creator.total_votes
         },
     }
 
@@ -195,8 +176,7 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
-        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(
-            question_id=q.question_id).scalar(),
+        "reputation": endpoint_votes.get_question_vote_count(q.question_id).get_json()['total_vote_count'],
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 

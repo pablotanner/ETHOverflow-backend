@@ -4,6 +4,7 @@ from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
+from endpoints import endpoint_votes, endpoint_users
 
 blueprint_comments = Blueprint("comments", __name__)
 
@@ -40,8 +41,7 @@ def get_comments(question_id, answer_id):
     # Loop through each answer to get its details and vote count
     for c in comments:
         # Calculate the total vote count
-        total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_comment_vote_count(c.comment_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
