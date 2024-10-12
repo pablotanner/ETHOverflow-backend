@@ -260,7 +260,7 @@ def mark_accepted_answer(question_id, answer_id):
     question.correct_answer_id = answer_id
     if answer_id:
         answer = Answer.query().filterby(answer_id=answer_id).first()
-        answer.answer_id = True
+        answer.accepted = True
     db.session.commit()
 
 
