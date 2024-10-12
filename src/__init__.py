@@ -26,6 +26,7 @@ def create_app():
     app.register_blueprint(blueprint_users)
     app.register_blueprint(blueprint_user_activity)
     app.register_blueprint(blueprint_votes)
+    
 
     # @app.route("/api/test", methods=["GET"])
     # def test_route():
