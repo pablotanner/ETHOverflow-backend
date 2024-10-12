@@ -11,6 +11,7 @@ from endpoints.endpoint_comments import blueprint_comments
 from endpoints.endpoint_users import blueprint_users
 from endpoints.endpoint_user_activity import blueprint_user_activity
 from endpoints.endpoint_votes import blueprint_votes
+from endpoints.endpoint_tags import blueprint_tags
 
 
 def create_app():
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(blueprint_users)
     app.register_blueprint(blueprint_user_activity)
     app.register_blueprint(blueprint_votes)
+    app.register_blueprint(blueprint_tags)
     
 
     # @app.route("/api/test", methods=["GET"])
