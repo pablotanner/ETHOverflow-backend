@@ -32,6 +32,8 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
+        "reputation": q.reputation,
+        "email": q.email,
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 
