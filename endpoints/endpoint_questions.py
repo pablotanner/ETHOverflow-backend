@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
+from endpoints import endpoint_users
 
 blueprint_questions = Blueprint("questions", __name__)
 
@@ -32,8 +33,7 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
-        "reputation": q.reputation,
-        "email": q.email,
+        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=q.question_id).scalar(),
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 
@@ -50,7 +50,7 @@ def post_question():
         content=data['content'],
         date_asked=datetime.now(),  # Set date with timezone
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by'],  # Use created_by as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email'],  # Use created_by as per schema
         tags=data.get('tags', [])  # Assign tags if provided, otherwise empty
     )
     db.session.add(new_question)

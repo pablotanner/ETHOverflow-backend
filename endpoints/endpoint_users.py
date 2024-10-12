@@ -7,12 +7,13 @@ from src import db
 
 blueprint_users = Blueprint("users", __name__)
 
-# Endpoint to get user(s) specified by username or limit
+# Endpoint to get user(s) specified by username, email and/or limit
 @blueprint_users.route('/api/users', methods=['GET'])
 def get_users():
     # Get query parameters
     limit = request.args.get('limit', default=10, type=int)
     username = request.args.get('username', type=str)
+    email = request.args.get('email', type=str)
 
     # Base query
     query = User.query
@@ -20,6 +21,9 @@ def get_users():
     # Filter by specific username from database
     if username:
         query = query.filter_by(username=username)
+
+    if email:
+        query = query.filter_by(email=email)
 
     # Limit the number of questions returned
     users = query.limit(limit).all()
@@ -42,24 +46,24 @@ def get_users():
 
 
 # Endpoint to create a new user
-@blueprint_users.route('/api/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    new_user = User(
-        username=data['username'],
-        email=data['email'],
-        display_name=data['display_name'],
-        date_joined=datetime.now(),  # Automatically set the join date
-        date_last_login=datetime.now(),  # Set last login to current time on account creation
-        reputation=0,  # Start with default reputation
-        total_questions=0,
-        total_answers=0,
-        total_comments=0,
-        total_votes=0
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"message": "User created successfully!", "username": new_user.username}), 201
+# @blueprint_users.route('/api/users', methods=['POST'])
+# def create_user():
+#     data = request.get_json()
+#     new_user = User(
+#         username=data['username'],
+#         email=data['email'],
+#         display_name=data['display_name'],
+#         date_joined=datetime.now(),  # Automatically set the join date
+#         date_last_login=datetime.now(),  # Set last login to current time on account creation
+#         reputation=0,  # Start with default reputation
+#         total_questions=0,
+#         total_answers=0,
+#         total_comments=0,
+#         total_votes=0
+#     )
+#     db.session.add(new_user)
+#     db.session.commit()
+#     return jsonify({"message": "User created successfully!", "username": new_user.username}), 201
 
 
 # Endpoint to update an existing user specified by username
@@ -96,3 +100,36 @@ def delete_user(username):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"message": "User deleted successfully!"})
+
+@blueprint_users.route('/api/users/current_user', methods=['GET'])
+def get_current_user():
+    user = User.query.filter_by(email=request.headers['X-authentik-email']).first()
+    if not user:
+        user = User(
+            username=request.headers['X-authentik-username'],
+            email=request.headers['X-authentik-email'],
+            display_name=request.headers['X-authentik-name'],
+            date_joined=datetime.now(),  # Automatically set the join date
+            date_last_login=datetime.now(),  # Set last login to current time on account creation
+            reputation=0,  # Start with default reputation
+            total_questions=0,
+            total_answers=0,
+            total_comments=0,
+            total_votes=0
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+    user_json = {
+        "username": user.username,
+        "email": user.email,
+        "display_name": user.display_name,
+        "date_joined": user.date_joined,
+        "date_last_login": user.date_last_login,
+        "reputation": user.reputation,
+        "total_questions": user.total_questions,
+        "total_answers": user.total_answers,
+        "total_comments": user.total_comments,
+        "total_votes": user.total_votes,
+    }
+    return jsonify(user_json)
