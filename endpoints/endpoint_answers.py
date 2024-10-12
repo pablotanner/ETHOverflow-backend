@@ -82,6 +82,10 @@ def delete_answer(answer_id):
     if not answer:
         return jsonify({"error": "Answer not found"}), 404
 
-    db.session.delete(answer)
-    db.session.commit()
-    return jsonify({"message": "Answer deleted successfully!"})
+    if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
+
+        db.session.delete(answer)
+        db.session.commit()
+        return jsonify({"message": "Answer deleted successfully!"})
+    else:
+        return jsonify({"error": "User does not have permission to delete answer!"}), 403

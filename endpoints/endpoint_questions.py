@@ -7,6 +7,7 @@ from endpoints import endpoint_users
 
 blueprint_questions = Blueprint("questions", __name__)
 
+
 # Endpoint to get questions or a specific question by question_id
 @blueprint_questions.route('/api/questions/<string:question_id>', methods=['GET'])
 def get_question(question_id):
@@ -63,7 +64,6 @@ def get_question(question_id):
 
     answers_list = []
 
-
     for a in answers:
         # Calculate the total vote count
         total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
@@ -75,7 +75,6 @@ def get_question(question_id):
 
         comments = Comment.query.filter_by(question_id=question_id, answer_id=a.answer_id).all()
         comments_list = []
-
 
         # Loop through each answer to get its details and vote count
         for c in comments:
@@ -196,7 +195,8 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
-        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=q.question_id).scalar(),
+        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(
+            question_id=q.question_id).scalar(),
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 
@@ -260,8 +260,9 @@ def delete_question(question_id):
 
     if not question:
         return jsonify({"error": "Question not found"}), 404
-
-
-    db.session.delete(question)
-    db.session.commit()
-    return jsonify({"message": "Question deleted successfully!"})
+    if endpoint_users.get_current_user().get_json()['email'] == question.created_by:
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({"message": "Question deleted successfully!"})
+    else:
+        return jsonify({"error": "You do not have permission to delete this question!"}), 403
