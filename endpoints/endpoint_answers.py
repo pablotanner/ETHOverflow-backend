@@ -101,8 +101,7 @@ def delete_answer(answer_id):
 
     if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
 
-        db.session.delete(answer)
-        db.session.commit()
+        delete_methods.delete_answer(answer)
         return jsonify({"message": "Answer deleted successfully!"})
     else:
         return jsonify({"error": "User does not have permission to delete answer!"}), 403
