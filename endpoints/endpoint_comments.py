@@ -27,6 +27,23 @@ def post_comment(question_id, answers_id):
     return jsonify({"message": "Comment posted successfully!", "comment_id": new_comment.comment_id}), 201
 
 
+# Endpoint to post an answer to a question
+@blueprint_comments.route('/api/questions/<string:question_id>/comments', methods=['POST'])
+def post_comment(question_id):
+    data = request.get_json()
+    new_comment = Comment(
+        comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
+        content=data['content'],
+        question_id=question_id,
+        date_commented=datetime.now(),  # Automatically set the date when the comment is posted
+        date_last_edited=datetime.now(),  # Initialize with current date and time
+        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+    )
+    db.session.add(new_comment)
+    db.session.commit()
+    return jsonify({"message": "Comment posted successfully!", "comment_id": new_comment.comment_id}), 201
+
+
 # Endpoint to get comments for a specific answer
 @blueprint_comments.route('/api/questions/<string:question_id>/answers/<string:answer_id>/comments', methods=['GET'])
 def get_comments(question_id, answer_id):
