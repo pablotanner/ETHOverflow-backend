@@ -237,6 +237,20 @@ def update_question(question_id):
     return jsonify({"message": "Question updated successfully!"})
 
 
+# Endpoint to mark an answer as accepted answer
+@blueprint_questions.route('/api/questions/<string:question_id>/mark-accepted/<string:answer_id>', methods=['PUT'])
+def mark_accepted_answer(question_id, answer_id):
+    question = Question.query().filterby(question_id=question_id).first()
+    if question.correct_answer_id:
+        oldanswer = Answer.query().filterby(answer_id=question.correct_answer_id).first()
+        oldanswer.accepted = False
+    question.correct_answer_id = answer_id
+    if answer_id:
+        answer = Answer.query().filterby(answer_id=answer_id).first()
+        answer.answer_id = True
+    db.session.commit()
+
+
 # Endpoint to delete an existing question specified by question_id
 @blueprint_questions.route('/api/questions/<string:question_id>', methods=['DELETE'])
 def delete_question(question_id):
