@@ -91,17 +91,17 @@ def update_user(username):
     return jsonify({"message": "User updated successfully!"})
 
 
-# Endpoint to delete an existing user specified by username
-@blueprint_users.route('/api/users/<string:username>', methods=['DELETE'])
-def delete_user(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({"message": "User deleted successfully!"})
+# # Endpoint to delete an existing user specified by username
+# @blueprint_users.route('/api/users/<string:username>', methods=['DELETE'])
+# def delete_user(username):
+#     user = User.query.filter_by(username=username).first()
+#
+#     if not user:
+#         return jsonify({"error": "User not found"}), 404
+#
+#     db.session.delete(user)
+#     db.session.commit()
+#     return jsonify({"message": "User deleted successfully!"})
 
 @blueprint_users.route('/api/users/current_user', methods=['GET'])
 def get_current_user():
