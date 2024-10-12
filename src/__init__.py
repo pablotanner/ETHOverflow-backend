@@ -176,5 +176,125 @@ def seed_db():
             reputation=user_data["reputation"],
         )
         db.session.add(user)
+    db.session.commit()
 
+    # Define some initial tags
+    tags = [
+        {"name": "Python"},
+        {"name": "Flask"},
+        {"name": "SQLAlchemy"},
+        {"name": "PostgreSQL"},
+    ]
+
+    # Insert tags into the database
+    for tag_data in tags:
+        tag = Tag(name=tag_data["name"])
+        db.session.add(tag)
+    db.session.commit()
+
+    # Define some initial questions
+    questions = [
+        {
+            "title": "How to use Flask with PostgreSQL?",
+            "content": "I need help with setting up Flask and PostgreSQL.",
+            "created_by": "jdoe",
+            "tags": [1, 2, 4],  # Assuming IDs of tags
+        },
+        {
+            "title": "What is SQLAlchemy?",
+            "content": "Can someone explain SQLAlchemy ORM?",
+            "created_by": "asmith",
+            "tags": [3, 4],
+        },
+    ]
+
+    # Insert questions into the database
+    for question_data in questions:
+        question = Question(
+            title=question_data["title"],
+            content=question_data["content"],
+            created_by=question_data["created_by"],
+            tags=question_data["tags"],
+        )
+        db.session.add(question)
+    db.session.commit()
+
+    # Define some initial answers
+    answers = [
+        {
+            "content": "You can use the psycopg2 library.",
+            "created_by": "bwilliams",
+            "question_id": Question.query.first().question_id,
+        },
+        {
+            "content": "SQLAlchemy is an ORM for Python.",
+            "created_by": "jdoe",
+            "question_id": Question.query.filter_by(title="What is SQLAlchemy?")
+            .first()
+            .question_id,
+        },
+    ]
+
+    # Insert answers into the database
+    for answer_data in answers:
+        answer = Answer(
+            content=answer_data["content"],
+            created_by=answer_data["created_by"],
+            question_id=answer_data["question_id"],
+        )
+        db.session.add(answer)
+    db.session.commit()
+
+    # Define some initial comments
+    comments = [
+        {
+            "content": "Thanks for the answer!",
+            "created_by": "asmith",
+            "answer_id": Answer.query.first().answer_id,
+        },
+        {
+            "content": "This is very helpful.",
+            "created_by": "bwilliams",
+            "question_id": Question.query.filter_by(
+                title="How to use Flask with PostgreSQL?"
+            )
+            .first()
+            .question_id,
+        },
+    ]
+
+    # Insert comments into the database
+    for comment_data in comments:
+        comment = Comment(
+            content=comment_data["content"],
+            created_by=comment_data["created_by"],
+            question_id=comment_data.get("question_id"),
+            answer_id=comment_data.get("answer_id"),
+        )
+        db.session.add(comment)
+    db.session.commit()
+
+    # Define some initial votes
+    votes = [
+        {
+            "vote_type": 1,  # upvote
+            "created_by": "jdoe",
+            "question_id": Question.query.first().question_id,
+        },
+        {
+            "vote_type": -1,  # downvote
+            "created_by": "asmith",
+            "answer_id": Answer.query.first().answer_id,
+        },
+    ]
+
+    # Insert votes into the database
+    for vote_data in votes:
+        vote = Vote(
+            vote_type=vote_data["vote_type"],
+            created_by=vote_data["created_by"],
+            question_id=vote_data.get("question_id"),
+            answer_id=vote_data.get("answer_id"),
+        )
+        db.session.add(vote)
     db.session.commit()
