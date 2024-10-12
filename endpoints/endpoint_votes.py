@@ -1,5 +1,13 @@
+from models import User, Question, Answer, Vote, Comment, Tag
+from datetime import datetime
+from uuid import uuid4
+from flask import request, jsonify, Blueprint
+from src import db
+
+blueprint_votes = Blueprint("votes", __name__)
+
 # Endpoint to add or update a vote on an answer
-@app.route('/api/answers/<string:answer_id>/vote', methods=['POST'])
+@blueprint_votes.route('/api/answers/<string:answer_id>/vote', methods=['POST'])
 def vote_on_answer(answer_id):
     data = request.get_json()
     vote_type = data.get('vote_type')  # Should be 1 (upvote) or -1 (downvote)
@@ -18,7 +26,7 @@ def vote_on_answer(answer_id):
             answer_id=answer_id,
             vote_type=vote_type,
             created_by=created_by,
-            date_voted=datetime.now(switzerland_tz)
+            date_voted=datetime.now()
         )
         db.session.add(new_vote)
 

@@ -1,16 +1,14 @@
 from models import User, Question, Answer, Vote, Comment, Tag
 from datetime import datetime
 from uuid import uuid4
-from flask import request, jsonify
-import pytz
-
-# Define Switzerland timezone
-switzerland_tz = pytz.timezone('Europe/Zurich')
+from flask import request, jsonify, Blueprint
+from src import db
 
 
+blueprint_users = Blueprint("users", __name__)
 
 # Endpoint to get user(s) specified by username or limit
-@app.route('/api/users', methods=['GET'])
+@blueprint_users.route('/api/users', methods=['GET'])
 def get_users():
     # Get query parameters
     limit = request.args.get('limit', default=10, type=int)
@@ -44,15 +42,15 @@ def get_users():
 
 
 # Endpoint to create a new user
-@app.route('/api/users', methods=['POST'])
+@blueprint_users.route('/api/users', methods=['POST'])
 def create_user():
     data = request.get_json()
     new_user = User(
         username=data['username'],
         email=data['email'],
         display_name=data['display_name'],
-        date_joined=datetime.now(switzerland_tz),  # Automatically set the join date
-        date_last_login=datetime.now(switzerland_tz),  # Set last login to current time on account creation
+        date_joined=datetime.now(),  # Automatically set the join date
+        date_last_login=datetime.now(),  # Set last login to current time on account creation
         reputation=0,  # Start with default reputation
         total_questions=0,
         total_answers=0,
@@ -65,7 +63,7 @@ def create_user():
 
 
 # Endpoint to update an existing user specified by username
-@app.route('/api/users/<string:username>', methods=['PUT'])
+@blueprint_users.route('/api/users/<string:username>', methods=['PUT'])
 def update_user(username):
     data = request.get_json()
     user = User.query.filter_by(username=username).first()
@@ -81,14 +79,14 @@ def update_user(username):
     if 'reputation' in data:
         user.reputation = data['reputation']
     if 'date_last_login' in data:
-        user.date_last_login = datetime.now(switzerland_tz)  # Update last login time
+        user.date_last_login = datetime.now()  # Update last login time
 
     db.session.commit()
     return jsonify({"message": "User updated successfully!"})
 
 
 # Endpoint to delete an existing user specified by username
-@app.route('/api/users/<string:username>', methods=['DELETE'])
+@blueprint_users.route('/api/users/<string:username>', methods=['DELETE'])
 def delete_user(username):
     user = User.query.filter_by(username=username).first()
 

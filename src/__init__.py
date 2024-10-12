@@ -6,6 +6,11 @@ import logging
 import datetime
 from uuid import uuid4
 from endpoints.endpoint_questions import blueprint_questions
+from endpoints.endpoint_answers import blueprint_answers
+from endpoints.endpoint_comments import blueprint_comments
+from endpoints.endpoint_users import blueprint_users
+from endpoints.endpoint_user_activity import blueprint_user_activity
+from endpoints.endpoint_votes import blueprint_votes
 
 
 def create_app():
@@ -16,6 +21,11 @@ def create_app():
     init_db(app)
     
     app.register_blueprint(blueprint_questions)
+    app.register_blueprint(blueprint_answers)
+    app.register_blueprint(blueprint_comments)
+    app.register_blueprint(blueprint_users)
+    app.register_blueprint(blueprint_user_activity)
+    app.register_blueprint(blueprint_votes)
 
     # @app.route("/api/test", methods=["GET"])
     # def test_route():

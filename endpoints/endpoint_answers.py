@@ -1,26 +1,22 @@
 from models import User, Question, Answer, Vote, Comment, Tag
 from datetime import datetime
 from uuid import uuid4
-from flask import request, jsonify
-import pytz
+from flask import request, jsonify, Blueprint
 from sqlalchemy import func
+from src import db
 
-
-
-# Define Switzerland timezone
-switzerland_tz = pytz.timezone('Europe/Zurich')
-
+blueprint_answers = Blueprint("answers", __name__)
 
 # Endpoint to post an answer to a question
-@app.route('/api/questions/<string:question_id>/answers', methods=['POST'])
+@blueprint_answers.route('/api/questions/<string:question_id>/answers', methods=['POST'])
 def post_answer(question_id):
     data = request.get_json()
     new_answer = Answer(
         answer_id=str(uuid4()),  # Generate unique UUID for the answer ID
         content=data['content'],
         question_id=question_id,
-        date_answered=datetime.now(switzerland_tz),  # Automatically set the date when the answer is posted
-        date_last_edited=datetime.now(switzerland_tz),  # Initialize with current date and time
+        date_answered=datetime.now(),  # Automatically set the date when the answer is posted
+        date_last_edited=datetime.now(),  # Initialize with current date and time
         created_by=data['created_by']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_answer)
@@ -31,7 +27,7 @@ def post_answer(question_id):
 
 
 # Adjusted get_answers to include total vote count and user vote
-@app.route('/api/questions/<string:question_id>/answers', methods=['GET'])
+@blueprint_answers.route('/api/questions/<string:question_id>/answers', methods=['GET'])
 def get_answers(question_id):
     answers = Answer.query.filter_by(question_id=question_id).all()
     answers_list = []
@@ -48,7 +44,7 @@ def get_answers(question_id):
         user_vote_type = user_vote.vote_type if user_vote else None
 
         answers_list.append({
-            #"answer_id": a.answer_id,
+            "answer_id": a.answer_id,
             "content": a.content,
             "date_answered": a.date_answered,
             "date_last_edited": a.date_last_edited,
@@ -61,7 +57,7 @@ def get_answers(question_id):
 
 
 # Endpoint to update an existing answer specified by answer_id
-@app.route('/api/answers/<string:answer_id>', methods=['PUT'])
+@blueprint_answers.route('/api/answers/<string:answer_id>', methods=['PUT'])
 def update_answer(answer_id):
     data = request.get_json()
     answer = Answer.query.filter_by(answer_id=answer_id).first()
@@ -72,14 +68,14 @@ def update_answer(answer_id):
     # Update answer fields based on input
     if 'content' in data:
         answer.content = data['content']
-    answer.date_last_edited = datetime.now(switzerland_tz)  # Update with current time
+    answer.date_last_edited = datetime.now()  # Update with current time
 
     db.session.commit()
     return jsonify({"message": "Answer updated successfully!"})
 
 
 # Endpoint to delete an existing answer specified by answer_id
-@app.route('/api/answers/<string:answer_id>', methods=['DELETE'])
+@blueprint_answers.route('/api/answers/<string:answer_id>', methods=['DELETE'])
 def delete_answer(answer_id):
     answer = Answer.query.filter_by(answer_id=answer_id).first()
 
