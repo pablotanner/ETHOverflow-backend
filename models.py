@@ -31,6 +31,7 @@ class Tag(db.Model):
     __tablename__ = "tags"
 
     name = db.Column(db.String, primary_key=True)
+    questions = db.Column(ARRAY(UUID(as_uuid=True)))
 
 
 class Answer(db.Model):
