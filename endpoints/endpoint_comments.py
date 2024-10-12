@@ -5,11 +5,12 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
 
-
 blueprint_comments = Blueprint("comments", __name__)
+
+
 # Endpoint to post an answer to a question
 @blueprint_comments.route('/api/questions/<string:question_id>/answers/<string:answers_id>/comments', methods=['POST'])
-def post_comment(question_id,answers_id):
+def post_comment(question_id, answers_id):
     data = request.get_json()
     new_comment = Comment(
         comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
@@ -23,7 +24,6 @@ def post_comment(question_id,answers_id):
     db.session.add(new_comment)
     db.session.commit()
     return jsonify({"message": "Comment posted successfully!", "comment_id": new_comment.comment_id}), 201
-
 
 
 # Endpoint to get comments for a specific answer
@@ -60,6 +60,7 @@ def get_comments(question_id, answer_id):
 
     return jsonify(comments_list)
 
+
 # Endpoint to update an existing comment specified by comment_id
 @blueprint_comments.route('/api/comments/<string:comment_id>', methods=['PUT'])
 def update_comment(comment_id):
@@ -77,6 +78,7 @@ def update_comment(comment_id):
     db.session.commit()
     return jsonify({"message": "Comment updated successfully!"})
 
+
 # Endpoint to delete an existing comment specified by comment_id
 @blueprint_comments.route('/api/comments/<string:comment_id>', methods=['DELETE'])
 def delete_comment(comment_id):
@@ -85,6 +87,11 @@ def delete_comment(comment_id):
     if not comment:
         return jsonify({"error": "Comment not found"}), 404
 
-    db.session.delete(comment)
-    db.session.commit()
-    return jsonify({"message": "Comment deleted successfully!"})
+    if endpoint_users.get_current_user().get_json()['email'] == comment.created_by:
+
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({"message": "Comment deleted successfully!"})
+
+    else:
+        return jsonify({"error": "User does not have permission to delete answer!"}), 403

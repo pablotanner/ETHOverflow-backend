@@ -7,14 +7,13 @@ from endpoints import endpoint_users
 
 blueprint_questions = Blueprint("questions", __name__)
 
+
 # Endpoint to get questions or a specific question by question_id
 @blueprint_questions.route('/api/questions/<string:question_id>', methods=['GET'])
 def get_question():
-
     # Base query
     query = Question.query
     current_user = request.args.get('user')  # Assume user identifier passed as query parameter
-
 
     # Get query parameters
     limit = request.args.get('limit', default=10, type=int)
@@ -52,7 +51,6 @@ def get_question():
 
     answers_list = []
 
-
     for a in answers:
         # Calculate the total vote count
         total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
@@ -64,7 +62,6 @@ def get_question():
 
         comments = Comment.query.filter_by(question_id=question_id, answer_id=answer_id).all()
         comments_list = []
-
 
         # Loop through each answer to get its details and vote count
         for c in comments:
@@ -94,7 +91,7 @@ def get_question():
             "date_last_edited": a.date_last_edited,
             "created_by": a.created_by,
             "total_vote_count": total_vote_count,
-            "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
+            "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
             "comments_list": comments_list
         })
 
@@ -120,8 +117,8 @@ def get_question():
         "created_by": q.created_by,
         "reputation": q.reputation,
         "email": q.email,
-        "tags": [Tag.query.get(tag).name for tag in q.tags]
-        "comments_of_questions_list": comments_of_questions_list
+        "tags": [Tag.query.get(tag).name for tag in q.tags],
+        "comments_of_questions_list": comments_of_questions_list,
         "answers_list": answers_list
     } for q in questions]
 
@@ -154,7 +151,8 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
-        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=q.question_id).scalar(),
+        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(
+            question_id=q.question_id).scalar(),
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 
@@ -211,7 +209,9 @@ def delete_question(question_id):
 
     if not question:
         return jsonify({"error": "Question not found"}), 404
-
-    db.session.delete(question)
-    db.session.commit()
-    return jsonify({"message": "Question deleted successfully!"})
+    if endpoint_users.get_current_user().get_json()['email'] == question.created_by:
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({"message": "Question deleted successfully!"})
+    else:
+        return jsonify({"error": "You do not have permission to delete this question!"}), 403
