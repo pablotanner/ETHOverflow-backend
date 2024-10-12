@@ -4,6 +4,7 @@ from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
 from endpoints import endpoint_users, endpoint_votes
+from model_managers.delete_methods import delete_question
 
 blueprint_questions = Blueprint("questions", __name__)
 
@@ -250,8 +251,7 @@ def delete_question(question_id):
     if not question:
         return jsonify({"error": "Question not found"}), 404
     if endpoint_users.get_current_user().get_json()['email'] == question.created_by:
-        db.session.delete(question)
-        db.session.commit()
+        delete_question(question_id)
         return jsonify({"message": "Question deleted successfully!"})
     else:
         return jsonify({"error": "You do not have permission to delete this question!"}), 403

@@ -5,6 +5,7 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
 from endpoints import endpoint_votes, endpoint_users
+from model_managers.delete_methods import delete_answer
 
 blueprint_answers = Blueprint("answers", __name__)
 
@@ -83,9 +84,7 @@ def delete_answer(answer_id):
         return jsonify({"error": "Answer not found"}), 404
 
     if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
-
-        db.session.delete(answer)
-        db.session.commit()
+        delete_answer(answer_id)
         return jsonify({"message": "Answer deleted successfully!"})
     else:
         return jsonify({"error": "User does not have permission to delete answer!"}), 403

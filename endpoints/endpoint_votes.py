@@ -115,6 +115,7 @@ def get_comment_vote_count(comment_id):
 
     return jsonify({"total_vote_count": total_vote_count})
 
+
 # Endpoint to get the total vote count for a user
 @blueprint_votes.route('/api/users/<string:username>/votes', methods=['GET'])
 def get_user_vote_count(username):
