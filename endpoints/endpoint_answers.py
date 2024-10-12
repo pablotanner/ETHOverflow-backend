@@ -21,11 +21,13 @@ def post_answer(question_id):
         date_last_edited=datetime.now(),  # Initialize with current date and time
         created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
+
+    if not data['content']:
+        return jsonify({'error': 'Content cannot be empty'}), 400
+
     db.session.add(new_answer)
     db.session.commit()
     return jsonify({"message": "Answer posted successfully!", "answer_id": new_answer.answer_id}), 201
-
-
 
 
 # Adjusted get_answers to include total vote count and user vote
@@ -85,6 +87,22 @@ def delete_answer(answer_id):
 
     if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
         delete_methods.delete_answer(answer_id)
+        return jsonify({"message": "Answer deleted successfully!"})
+    else:
+        return jsonify({"error": "User does not have permission to delete answer!"}), 403
+
+# Endpoint to delete an existing answer specified by answer_id
+@blueprint_answers.route('/api/answers/<string:answer_id>', methods=['DELETE'])
+def delete_answer(answer_id):
+    answer = Answer.query.filter_by(answer_id=answer_id).first()
+
+    if not answer:
+        return jsonify({"error": "Answer not found"}), 404
+
+    if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
+
+        db.session.delete(answer)
+        db.session.commit()
         return jsonify({"message": "Answer deleted successfully!"})
     else:
         return jsonify({"error": "User does not have permission to delete answer!"}), 403

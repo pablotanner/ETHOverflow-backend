@@ -206,6 +206,13 @@ def post_question():
         created_by=endpoint_users.get_current_user().get_json()['email'],  # Use created_by as per schema
         tags=data.get('tags', [])  # Assign tags if provided, otherwise empty
     )
+
+    if not data['content']:
+        return jsonify({'error': 'Content cannot be empty'}), 400
+
+    if not data['title']:
+        return jsonify({'error': 'Title cannot be empty'}), 400
+
     db.session.add(new_question)
     
     for tagname in data.get('tags', []):
