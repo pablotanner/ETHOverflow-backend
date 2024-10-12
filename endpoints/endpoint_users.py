@@ -5,10 +5,39 @@ from flask import request, jsonify, Blueprint
 from src import db
 
 def get_user_vote_count(username):
-    total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(created_by=username).scalar()
-    total_vote_count = total_vote_count if total_vote_count is not None else 0
-
-    return jsonify({"total_vote_count": total_vote_count})
+    
+    reputation = 0
+    
+    # +10 for each voted up question
+    # -2 for answer voted down
+    
+    questions = Question.query.filter_by(created_by=username).all()
+    for q in questions:
+        positive_votes = Vote.query.filter_by(question_id=q.question_id, vote_type=1).count()
+        negative_votes = Vote.query.filter_by(question_id=q.question_id, vote_type=-1).count()
+        negative_votes = negative_votes if negative_votes is not None else 0
+        reputation += positive_votes * 10 - negative_votes * 2
+    
+    # +10 for each voted up answer
+    # -2 for question voted down
+    
+    answers = Answer.query.filter_by(created_by=username).all()
+    for a in answers:
+        positive_votes = Vote.query.filter_by(answer_id=a.answer_id, vote_type=1).count()
+        negative_votes = Vote.query.filter_by(answer_id=a.answer_id, vote_type=-1).count()
+        reputation += positive_votes * 10 - negative_votes * 2
+    
+    # +15 for each accepted answer
+    
+    accepted_answers = Answer.query.filter_by(created_by=username, accepted=True).count()
+    reputation += accepted_answers * 15
+    
+    # -1 for downvoting an answer
+    
+    downvoted_answers = Vote.query.filter_by(created_by=username, vote_type=-1).count()
+    reputation -= downvoted_answers
+    
+    return jsonify({"total_vote_count": reputation})    
 
 
 blueprint_users = Blueprint("users", __name__)

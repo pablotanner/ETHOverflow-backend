@@ -25,6 +25,7 @@ class Question(db.Model):
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
     tags = db.Column(ARRAY(db.String), nullable=True)
+    correct_answer_id = db.Column(UUID(as_uuid=True), nullable=True, default=None)
 
 
 class Tag(db.Model):
@@ -45,6 +46,7 @@ class Answer(db.Model):
         UUID(as_uuid=True), db.ForeignKey("questions.question_id"), nullable=False
     )
     content = db.Column(db.Text, nullable=False)
+    accepted = db.Column(db.Boolean, default=False)
 
 
 class Comment(db.Model):

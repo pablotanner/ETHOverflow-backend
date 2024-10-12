@@ -10,7 +10,7 @@ def get_tags():
     tags_list = [name for name in tags]
     return jsonify(tags_list)
 
-@blueprint_tags.route("/api/tags/<string:name>", method=['GET'])
+@blueprint_tags.route("/api/tags/<string:name>", methods=['GET'])
 def tags_get_questions(name):
     tags = Tags.query().filterby(name=name).first()
     questions_list = []
