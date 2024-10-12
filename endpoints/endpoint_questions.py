@@ -10,17 +10,15 @@ blueprint_questions = Blueprint("questions", __name__)
 
 # Endpoint to get questions or a specific question by question_id
 @blueprint_questions.route('/api/questions/<string:question_id>', methods=['GET'])
-def get_question():
+def get_question(question_id):
+
     # Base query
     query = Question.query
-    current_user = request.args.get('user')  # Assume user identifier passed as query parameter
+    current_user = endpoint_users.get_current_user().get_json()['email']  # Assume user identifier passed as query parameter
 
-    # Get query parameters
-    limit = request.args.get('limit', default=10, type=int)
-    question_id = request.args.get('question_id', type=str)  # UUID is a string
-    if question_id:
-        query = query.filter_by(question_id=question_id)
-    else:
+    query = query.filter_by(question_id=question_id).first()
+    
+    if not query:
         return jsonify({"error": "Question not found"}), 404
 
     comments = Comment.query.filter_by(question_id=question_id).all()
@@ -29,12 +27,14 @@ def get_question():
     # Loop through each answer to get its details and vote count
     for c in comments:
         # Calculate the total vote count
-        total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
+        total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
         total_vote_count = total_vote_count if total_vote_count is not None else 0
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
         user_vote_type = user_vote.vote_type if user_vote else None
+        
+        creator = User.query.filter_by(email=c.created_by).first()
 
         # Append the comment details and vote count to the comment list
         comments_of_questions_list.append({
@@ -44,7 +44,20 @@ def get_question():
             "date_last_edited": c.date_last_edited,
             "created_by": c.created_by,
             "total_vote_count": total_vote_count,
-            "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
+            "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
+            "creator": {
+                "email": creator.email,
+                "username": creator.username,
+                "display_name": creator.display_name,
+                "reputation": creator.reputation,
+                "date_joined": creator.date_joined,
+                "date_last_login": creator.date_last_login,
+                "total_questions": creator.total_questions,
+                "total_answers": creator.total_answers,
+                "total_comments": creator.total_comments,
+                "total_votes": creator.total_votes
+            },
+                
         })
 
     answers = Answer.query.filter_by(question_id=question_id).all()
@@ -53,25 +66,27 @@ def get_question():
 
     for a in answers:
         # Calculate the total vote count
-        total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
+        total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
         total_vote_count = total_vote_count if total_vote_count is not None else 0
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=a.answer_id).first()
         user_vote_type = user_vote.vote_type if user_vote else None
 
-        comments = Comment.query.filter_by(question_id=question_id, answer_id=answer_id).all()
+        comments = Comment.query.filter_by(question_id=question_id, answer_id=a.answer_id).all()
         comments_list = []
 
         # Loop through each answer to get its details and vote count
         for c in comments:
             # Calculate the total vote count
-            total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
+            total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
             total_vote_count = total_vote_count if total_vote_count is not None else 0
 
             # Check if current user has voted on this answer
             user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
             user_vote_type = user_vote.vote_type if user_vote else None
+
+            creator = User.query.filter_by(email=c.created_by).first()
 
             # Append the comment details and vote count to the comment list
             comments_list.append({
@@ -81,8 +96,22 @@ def get_question():
                 "date_last_edited": c.date_last_edited,
                 "created_by": c.created_by,
                 "total_vote_count": total_vote_count,
-                "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
+                "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
+                "creator": {
+                    "email": creator.email,
+                    "username": creator.username,
+                    "display_name": creator.display_name,
+                    "reputation": creator.reputation,
+                    "date_joined": creator.date_joined,
+                    "date_last_login": creator.date_last_login,
+                    "total_questions": creator.total_questions,
+                    "total_answers": creator.total_answers,
+                    "total_comments": creator.total_comments,
+                    "total_votes": creator.total_votes
+                },
             })
+
+        creator = User.query.filter_by(email=a.created_by).first()
 
         answers_list.append({
             "answer_id": a.answer_id,
@@ -92,37 +121,52 @@ def get_question():
             "created_by": a.created_by,
             "total_vote_count": total_vote_count,
             "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
-            "comments_list": comments_list
+            "comments_list": comments_list,
+            "creator": {
+                "email": creator.email,
+                "username": creator.username,
+                "display_name": creator.display_name,
+                "reputation": creator.reputation,
+                "date_joined": creator.date_joined,
+                "date_last_login": creator.date_last_login,
+                "total_questions": creator.total_questions,
+                "total_answers": creator.total_answers,
+                "total_comments": creator.total_comments,
+                "total_votes": creator.total_votes
+            },
         })
 
-    # Prepare a list to hold the answers with their vote counts
-
-    # Filter by specific question ID from database
-    if question_id:
-        query = query.filter_by(question_id=question_id)
-
-    # Limit the number of questions returned
-    questions = query.limit(limit).all()
+    creator = User.query.filter_by(email=query.created_by).first()
 
     # Convert results to JSON
 
-    # Convert results to JSON
-    questions_list = [{
-        "id": q.question_id,
-        "title": q.title,
-        "content": q.content,
-        "date_asked": q.date_asked,
-        "date_last_edited": q.date_last_edited,
-        "date_closed": q.date_closed,
-        "created_by": q.created_by,
-        "reputation": q.reputation,
-        "email": q.email,
-        "tags": [Tag.query.get(tag).name for tag in q.tags],
+    result = {
+        "id": query.question_id,
+        "title": query.title,
+        "content": query.content,
+        "date_asked": query.date_asked,
+        "date_last_edited": query.date_last_edited,
+        "date_closed": query.date_closed,
+        "created_by": query.created_by,
+        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=query.question_id).scalar(),
+        "tags": [Tag.query.get(tag).name for tag in query.tags],
         "comments_of_questions_list": comments_of_questions_list,
-        "answers_list": answers_list
-    } for q in questions]
+        "answers_list": answers_list,
+        "creator": {
+            "email": creator.email,
+            "username": creator.username,
+            "display_name": creator.display_name,
+            "reputation": creator.reputation,
+            "date_joined": creator.date_joined,
+            "date_last_login": creator.date_last_login,
+            "total_questions": creator.total_questions,
+            "total_answers": creator.total_answers,
+            "total_comments": creator.total_comments,
+            "total_votes": creator.total_votes
+        },
+    }
 
-    return jsonify(questions_list)
+    return jsonify(result)
 
 
 # Endpoint to get questions or a specific question by question_id
@@ -173,6 +217,13 @@ def post_question():
         tags=data.get('tags', [])  # Assign tags if provided, otherwise empty
     )
     db.session.add(new_question)
+    
+    for tag in data.get('tags', []):
+        tag = Tag.query.get(tag)
+        if not tag:
+            tag = Tag(name=tag)
+            db.session.add(tag)
+    
     db.session.commit()
     return jsonify({"message": "Question posted successfully!", "question_id": new_question.question_id}), 201
 
