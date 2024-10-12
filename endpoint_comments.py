@@ -84,6 +84,7 @@ def delete_comment(comment_id):
 
     if not comment:
         return jsonify({"error": "Comment not found"}), 404
+
     if (created_by=endpoint_users.get_current_user().get_json()['email'] == answer.created_by):
 
         db.session.delete(comment)
