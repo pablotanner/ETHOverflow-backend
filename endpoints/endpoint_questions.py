@@ -67,7 +67,7 @@ def get_question(question_id):
         user_vote = Vote.query.filter_by(answer_id=a.answer_id).first()
         user_vote_type = user_vote.vote_type if user_vote else None
 
-        comments = Comment.query.filter_by(question_id=question_id, answer_id=a.answer_id).all()
+        comments = Comment.query.filter_by(answer_id=a.answer_id).all()
         comments_list = []
 
         # Loop through each answer to get its details and vote count

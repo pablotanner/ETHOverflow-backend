@@ -16,7 +16,6 @@ def post_comment_on_answer(question_id, answers_id):
     new_comment = Comment(
         comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
         content=data['content'],
-        question_id=question_id,
         answer_id=answers_id,
         date_commented=datetime.now(),  # Automatically set the date when the comment is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
