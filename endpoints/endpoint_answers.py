@@ -90,18 +90,3 @@ def delete_answer(answer_id):
         return jsonify({"message": "Answer deleted successfully!"})
     else:
         return jsonify({"error": "User does not have permission to delete answer!"}), 403
-
-# Endpoint to delete an existing answer specified by answer_id
-@blueprint_answers.route('/api/answers/<string:answer_id>', methods=['DELETE'])
-def delete_answer(answer_id):
-    answer = Answer.query.filter_by(answer_id=answer_id).first()
-
-    if not answer:
-        return jsonify({"error": "Answer not found"}), 404
-
-    if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
-
-        delete_methods.delete_answer(answer)
-        return jsonify({"message": "Answer deleted successfully!"})
-    else:
-        return jsonify({"error": "User does not have permission to delete answer!"}), 403
