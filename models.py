@@ -7,8 +7,8 @@ from sqlalchemy.dialects.postgresql import UUID, ARRAY
 class User(db.Model):
     __tablename__ = "users"
 
-    username = db.Column(db.String, primary_key=True, unique=True, nullable=False)
-    email = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
+    email = db.Column(db.String, primary_key=True, unique=True, nullable=False)
     display_name = db.Column(db.String, nullable=False)
     date_joined = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_last_login = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -26,7 +26,7 @@ class Question(db.Model):
     date_asked = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_last_edited = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_closed = db.Column(db.DateTime, nullable=True)
-    created_by = db.Column(db.String, db.ForeignKey("users.username"), nullable=False)
+    created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
     tags = db.Column(ARRAY(db.Integer), nullable=False)
@@ -35,8 +35,7 @@ class Question(db.Model):
 class Tag(db.Model):
     __tablename__ = "tags"
 
-    tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, primary_key=True)
 
 
 class Answer(db.Model):
@@ -45,7 +44,7 @@ class Answer(db.Model):
     answer_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     date_answered = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_last_edited = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    created_by = db.Column(db.String, db.ForeignKey("users.username"), nullable=False)
+    created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     question_id = db.Column(
         UUID(as_uuid=True), db.ForeignKey("questions.question_id"), nullable=False
     )
@@ -64,7 +63,7 @@ class Comment(db.Model):
     answer_id = db.Column(
         UUID(as_uuid=True), db.ForeignKey("answers.answer_id"), nullable=True
     )
-    created_by = db.Column(db.String, db.ForeignKey("users.username"), nullable=False)
+    created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     content = db.Column(db.Text, nullable=False)
 
 
@@ -73,7 +72,7 @@ class Vote(db.Model):
 
     vote_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     date_voted = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    created_by = db.Column(db.String, db.ForeignKey("users.username"), nullable=False)
+    created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     question_id = db.Column(
         UUID(as_uuid=True), db.ForeignKey("questions.question_id"), nullable=True
     )
