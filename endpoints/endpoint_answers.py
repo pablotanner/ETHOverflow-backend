@@ -4,7 +4,7 @@ from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
-from endpoints import endpoint_votes
+from endpoints import endpoint_votes, endpoint_users
 
 blueprint_answers = Blueprint("answers", __name__)
 
@@ -18,7 +18,7 @@ def post_answer(question_id):
         question_id=question_id,
         date_answered=datetime.now(),  # Automatically set the date when the answer is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_answer)
     db.session.commit()

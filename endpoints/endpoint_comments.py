@@ -11,7 +11,7 @@ blueprint_comments = Blueprint("comments", __name__)
 
 # Endpoint to post an answer to a question
 @blueprint_comments.route('/api/questions/<string:question_id>/answers/<string:answers_id>/comments', methods=['POST'])
-def post_comment(question_id, answers_id):
+def post_comment_on_answer(question_id, answers_id):
     data = request.get_json()
     new_comment = Comment(
         comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
@@ -20,7 +20,7 @@ def post_comment(question_id, answers_id):
         answer_id=answers_id,
         date_commented=datetime.now(),  # Automatically set the date when the comment is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_comment)
     db.session.commit()
@@ -29,7 +29,7 @@ def post_comment(question_id, answers_id):
 
 # Endpoint to post an answer to a question
 @blueprint_comments.route('/api/questions/<string:question_id>/comments', methods=['POST'])
-def post_comment(question_id):
+def post_comment_on_question(question_id):
     data = request.get_json()
     new_comment = Comment(
         comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
@@ -37,7 +37,7 @@ def post_comment(question_id):
         question_id=question_id,
         date_commented=datetime.now(),  # Automatically set the date when the comment is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_comment)
     db.session.commit()

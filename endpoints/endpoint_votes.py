@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
+from endpoints.endpoint_users import get_current_user
 
 blueprint_votes = Blueprint("votes", __name__)
 
@@ -11,7 +12,7 @@ blueprint_votes = Blueprint("votes", __name__)
 def vote_on_answer(answer_id):
     data = request.get_json()
     vote_type = data.get('vote_type')  # Should be 1 (upvote) or -1 (downvote)
-    created_by = data.get('created_by')  # User who cast the vote
+    created_by = get_current_user().get_json()['email']  # User who cast the vote
 
     # Check if a vote by this user on this answer already exists
     vote = Vote.query.filter_by(answer_id=answer_id, created_by=created_by).first()
@@ -39,7 +40,7 @@ def vote_on_answer(answer_id):
 def vote_on_comment(comment_id):
     data = request.get_json()
     vote_type = data.get('vote_type')  # Should be 1 (upvote) or -1 (downvote)
-    created_by = data.get('created_by')  # User who cast the vote
+    created_by = get_current_user().get_json()['email']  # User who cast the vote
 
     # Check if a vote by this user on this answer already exists
     vote = Vote.query.filter_by(comment_id=comment_id, created_by=created_by).first()
@@ -67,7 +68,7 @@ def vote_on_comment(comment_id):
 def vote_on_question(question_id):
     data = request.get_json()
     vote_type = data.get('vote_type')  # Should be 1 (upvote) or -1 (downvote)
-    created_by = data.get('created_by')  # User who cast the vote
+    created_by = get_current_user().get_json()['email']  # User who cast the vote
 
     # Check if a vote by this user on this answer already exists
     vote = Vote.query.filter_by(question_id=question_id, created_by=created_by).first()

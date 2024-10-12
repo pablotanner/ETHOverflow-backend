@@ -3,7 +3,12 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
-from endpoints.endpoint_votes import get_user_vote_count
+
+def get_user_vote_count(username):
+    total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(created_by=username).scalar()
+    total_vote_count = total_vote_count if total_vote_count is not None else 0
+
+    return jsonify({"total_vote_count": total_vote_count})
 
 
 blueprint_users = Blueprint("users", __name__)
@@ -109,8 +114,11 @@ def get_current_user():
             date_joined=datetime.now(),  # Automatically set the join date
             date_last_login=datetime.now(),  # Set last login to current time on account creation
         )
-        db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except:
+            pass
         
     user_json = {
         "username": user.username,
