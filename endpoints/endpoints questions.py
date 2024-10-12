@@ -9,7 +9,7 @@ switzerland_tz = pytz.timezone('Europe/Zurich')
 
 
 # Endpoint to get questions or a specific question by question_id
-@app.route('/questions', methods=['GET'])
+@app.route('api/questions', methods=['GET'])
 def get_questions():
     # Get query parameters
     limit = request.args.get('limit', default=10, type=int)
@@ -41,7 +41,7 @@ def get_questions():
 
 
 # Endpoint to post a new question
-@app.route('/questions', methods=['POST'])
+@app.route('/api/questions', methods=['POST'])
 def post_question():
     data = request.get_json()
     new_question = Question(
@@ -59,7 +59,7 @@ def post_question():
 
 
 # Endpoint to update an existing question specified by question_id
-@app.route('/questions/<string:question_id>', methods=['PUT'])
+@app.route('/api/questions/<string:question_id>', methods=['PUT'])
 def update_question(question_id):
     data = request.get_json()
     question = Question.query.filter_by(question_id=question_id).first()
@@ -84,7 +84,7 @@ def update_question(question_id):
 
 
 # Endpoint to delete an existing question specified by question_id
-@app.route('/questions/<string:question_id>', methods=['DELETE'])
+@app.route('/api/questions/<string:question_id>', methods=['DELETE'])
 def delete_question(question_id):
     question = Question.query.filter_by(question_id=question_id).first()
 

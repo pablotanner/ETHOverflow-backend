@@ -8,7 +8,7 @@ from sqlalchemy import func
 
 
 # User activity summary endpoint
-@app.route('/users/<string:username>/activity', methods=['GET'])
+@app.route('/api/users/<string:username>/activity', methods=['GET'])
 def get_user_activity(username):
     user = User.query.filter_by(username=username).first()
     if not user:

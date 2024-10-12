@@ -12,7 +12,7 @@ switzerland_tz = pytz.timezone('Europe/Zurich')
 
 
 # Endpoint to post an answer to a question
-@app.route('/questions/<string:question_id>/answers', methods=['POST'])
+@app.route('/api/questions/<string:question_id>/answers', methods=['POST'])
 def post_answer(question_id):
     data = request.get_json()
     new_answer = Answer(
@@ -31,7 +31,7 @@ def post_answer(question_id):
 
 
 # Adjusted get_answers to include total vote count and user vote
-@app.route('/questions/<string:question_id>/answers', methods=['GET'])
+@app.route('/api/questions/<string:question_id>/answers', methods=['GET'])
 def get_answers(question_id):
     answers = Answer.query.filter_by(question_id=question_id).all()
     answers_list = []
@@ -61,7 +61,7 @@ def get_answers(question_id):
 
 
 # Endpoint to update an existing answer specified by answer_id
-@app.route('/answers/<string:answer_id>', methods=['PUT'])
+@app.route('/api/answers/<string:answer_id>', methods=['PUT'])
 def update_answer(answer_id):
     data = request.get_json()
     answer = Answer.query.filter_by(answer_id=answer_id).first()
@@ -79,7 +79,7 @@ def update_answer(answer_id):
 
 
 # Endpoint to delete an existing answer specified by answer_id
-@app.route('/answers/<string:answer_id>', methods=['DELETE'])
+@app.route('/api/answers/<string:answer_id>', methods=['DELETE'])
 def delete_answer(answer_id):
     answer = Answer.query.filter_by(answer_id=answer_id).first()
 

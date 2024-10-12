@@ -10,7 +10,7 @@ switzerland_tz = pytz.timezone('Europe/Zurich')
 
 
 # Endpoint to get user(s) specified by username or limit
-@app.route('/users', methods=['GET'])
+@app.route('/api/users', methods=['GET'])
 def get_users():
     # Get query parameters
     limit = request.args.get('limit', default=10, type=int)
@@ -44,7 +44,7 @@ def get_users():
 
 
 # Endpoint to create a new user
-@app.route('/users', methods=['POST'])
+@app.route('/api/users', methods=['POST'])
 def create_user():
     data = request.get_json()
     new_user = User(
@@ -65,7 +65,7 @@ def create_user():
 
 
 # Endpoint to update an existing user specified by username
-@app.route('/users/<string:username>', methods=['PUT'])
+@app.route('/api/users/<string:username>', methods=['PUT'])
 def update_user(username):
     data = request.get_json()
     user = User.query.filter_by(username=username).first()
@@ -88,7 +88,7 @@ def update_user(username):
 
 
 # Endpoint to delete an existing user specified by username
-@app.route('/users/<string:username>', methods=['DELETE'])
+@app.route('/api/users/<string:username>', methods=['DELETE'])
 def delete_user(username):
     user = User.query.filter_by(username=username).first()
 

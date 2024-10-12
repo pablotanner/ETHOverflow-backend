@@ -1,5 +1,5 @@
 # Endpoint to add or update a vote on an answer
-@app.route('/answers/<string:answer_id>/vote', methods=['POST'])
+@app.route('/api/answers/<string:answer_id>/vote', methods=['POST'])
 def vote_on_answer(answer_id):
     data = request.get_json()
     vote_type = data.get('vote_type')  # Should be 1 (upvote) or -1 (downvote)

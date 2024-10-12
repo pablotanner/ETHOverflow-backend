@@ -12,7 +12,7 @@ switzerland_tz = pytz.timezone('Europe/Zurich')
 
 
 # Endpoint to post an answer to a question
-@app.route('/questions/<string:question_id>/answers/<string:answers_id>/comments', methods=['POST'])
+@app.route('/api/questions/<string:question_id>/answers/<string:answers_id>/comments', methods=['POST'])
 def post_comment(question_id,answers_id):
     data = request.get_json()
     new_comment = Comment(
@@ -31,7 +31,7 @@ def post_comment(question_id,answers_id):
 
 
 # Endpoint to get comments for a specific answer
-@app.route('/questions/<string:question_id>/answers/<string:answer_id>/comments', methods=['GET'])
+@app.route('/api/questions/<string:question_id>/answers/<string:answer_id>/comments', methods=['GET'])
 def get_comments(question_id, answer_id):
     # Fetch all comments for the specified answer ID
     comments = Comment.query.filter_by(question_id=question_id, answer_id=answer_id).all()
@@ -65,7 +65,7 @@ def get_comments(question_id, answer_id):
     return jsonify(comments_list)
 
 # Endpoint to update an existing comment specified by comment_id
-@app.route('/comments/<string:comment_id>', methods=['PUT'])
+@app.route('/api/comments/<string:comment_id>', methods=['PUT'])
 def update_comment(comment_id):
     data = request.get_json()
     comment = Comment.query.filter_by(comment_id=comment_id).first()
@@ -82,7 +82,7 @@ def update_comment(comment_id):
     return jsonify({"message": "Comment updated successfully!"})
 
 # Endpoint to delete an existing comment specified by comment_id
-@app.route('/comments/<string:comment_id>', methods=['DELETE'])
+@app.route('/api/comments/<string:comment_id>', methods=['DELETE'])
 def delete_comment(comment_id):
     comment = Comment.query.filter_by(comment_id=comment_id).first()
 
