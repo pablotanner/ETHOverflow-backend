@@ -38,6 +38,9 @@ def post_comment(question_id):
         date_last_edited=datetime.now(),  # Initialize with current date and time
         created_by=data['created_by']  # Use created_by instead of user_id as per schema
     )
+    if not data['content']:
+        return jsonify({'error': 'Content cannot be empty'}), 400
+
     db.session.add(new_comment)
     db.session.commit()
     return jsonify({"message": "Comment posted successfully!", "comment_id": new_comment.comment_id}), 201
