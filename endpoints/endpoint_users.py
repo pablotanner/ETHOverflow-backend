@@ -103,9 +103,9 @@ def delete_user(username):
 
 @blueprint_users.route('/api/users/current_user', methods=['GET'])
 def get_current_user():
-    user = User.query.filter_by(email=request.headers['X-authentik-email'])
+    user = User.query.filter_by(email=request.headers['X-authentik-email']).first()
     if not user:
-        new_user = User(
+        user = User(
             username=request.headers['X-authentik-username'],
             email=request.headers['X-authentik-email'],
             display_name=request.headers['X-authentik-name'],
@@ -117,20 +117,19 @@ def get_current_user():
             total_comments=0,
             total_votes=0
         )
-        db.session.add(new_user)
+        db.session.add(user)
         db.session.commit()
-        return new_user
-    else:
-        user_json = {
-            "username": user.username,
-            "email": user.email,
-            "display_name": user.display_name,
-            "date_joined": user.date_joined,
-            "date_last_login": user.date_last_login,
-            "reputation": user.reputation,
-            "total_questions": user.total_questions,
-            "total_answers": user.total_answers,
-            "total_comments": user.total_comments,
-            "total_votes": user.total_votes,
-        }
-        return jsonify(user_json)
+        
+    user_json = {
+        "username": user.username,
+        "email": user.email,
+        "display_name": user.display_name,
+        "date_joined": user.date_joined,
+        "date_last_login": user.date_last_login,
+        "reputation": user.reputation,
+        "total_questions": user.total_questions,
+        "total_answers": user.total_answers,
+        "total_comments": user.total_comments,
+        "total_votes": user.total_votes,
+    }
+    return jsonify(user_json)

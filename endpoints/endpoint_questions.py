@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
-import endpoint_users
+from endpoints import endpoint_users
 
 blueprint_questions = Blueprint("questions", __name__)
 
@@ -33,7 +33,7 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
-        "reputation": Vote.query.filter_by(question_id=q.question_id).with_entities(db.func.sum(Vote.vote_type)).scalar(),
+        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=q.question_id).scalar(),
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 
