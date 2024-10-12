@@ -3,7 +3,7 @@ from config import Config
 from src.database import init_db, db
 from models import User, Question, Tag, Answer, Comment, Vote
 import logging
-from datetime import datetime
+import datetime
 from uuid import uuid4
 
 
@@ -18,7 +18,23 @@ def create_app():
     def test_route():
         users = User.query.all()
 
-        return jsonify([dict(user) for user in users])
+        return jsonify(
+            [
+                {
+                    "username": user.username,
+                    "email": user.email,
+                    "display_name": user.display_name,
+                    "date_joined": user.date_joined,
+                    "date_last_login": user.date_last_login,
+                    "reputation": user.reputation,
+                    "total_questions": user.total_questions,
+                    "total_answers": user.total_answers,
+                    "total_comments": user.total_comments,
+                    "total_votes": user.total_votes,
+                }
+                for user in users
+            ]
+        )
 
     # Endpoint to get question specified by question_id
     @app.route("/api/questions", methods=["GET"])
