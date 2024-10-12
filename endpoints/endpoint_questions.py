@@ -32,8 +32,7 @@ def get_questions():
         "date_last_edited": q.date_last_edited,
         "date_closed": q.date_closed,
         "created_by": q.created_by,
-        "reputation": q.reputation,
-        "email": q.email,
+        "reputation": Vote.query.filter_by(question_id=q.question_id).with_entities(db.func.sum(Vote.vote_type)).scalar(),
         "tags": [Tag.query.get(tag).name for tag in q.tags]
     } for q in questions]
 
