@@ -123,6 +123,8 @@ def get_question(question_id):
 
     creator = User.query.filter_by(email=query.created_by).first()
 
+    user_vote = Vote.query.filter_by(question_id=query.question_id, created_by=current_user).first()
+    user_vote_type = user_vote.vote_type if user_vote else None
     # Convert results to JSON
 
     result = {
@@ -137,6 +139,7 @@ def get_question(question_id):
         "tags": [Tag.query.get(tag).name for tag in query.tags],
         "comments_of_questions_list": comments_of_questions_list,
         "answers_list": answers_list,
+        "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
         "creator": {
             "email": creator.email,
             "username": creator.username,
