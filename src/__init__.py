@@ -5,6 +5,7 @@ from models import User, Question, Tag, Answer, Comment, Vote
 import logging
 import datetime
 from uuid import uuid4
+from endpoints.endpoint_questions import blueprint_questions
 
 
 def create_app():
@@ -13,6 +14,8 @@ def create_app():
 
     # Initialize database and migration
     init_db(app)
+    
+    app.register_blueprint(blueprint_questions)
 
     # @app.route("/api/test", methods=["GET"])
     # def test_route():
