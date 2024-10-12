@@ -5,7 +5,7 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
 from endpoints import endpoint_votes, endpoint_users
-from model_managers.delete_methods import delete_comment
+from model_managers import delete_methods
 
 blueprint_comments = Blueprint("comments", __name__)
 
@@ -106,7 +106,7 @@ def delete_comment(comment_id):
 
     if endpoint_users.get_current_user().get_json()['email'] == comment.created_by:
 
-        delete_comment(comment_id)
+        delete_methods.delete_comment(comment_id)
         return jsonify({"message": "Comment deleted successfully!"})
 
     else:
