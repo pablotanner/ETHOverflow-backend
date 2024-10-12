@@ -11,7 +11,12 @@ def create_app():
     app.config.from_object(Config)
 
     # Initialize database and migration
-    init_db(app)
+    # init_db(app)
+
+    @app.route('/test', methods=['GET'])
+    def test_route():
+        users = db.session.execute(db.select(User))
+        return users
 
     # Endpoint to get question specified by question_id
     @app.route('/questions', methods=['GET'])
