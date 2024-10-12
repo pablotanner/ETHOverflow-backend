@@ -32,6 +32,8 @@ def get_question(question_id):
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
         user_vote_type = user_vote.vote_type if user_vote else None
+        
+        creator = User.query.filter_by(email=c.created_by).first()
 
         # Append the comment details and vote count to the comment list
         comments_of_questions_list.append({
@@ -41,7 +43,20 @@ def get_question(question_id):
             "date_last_edited": c.date_last_edited,
             "created_by": c.created_by,
             "total_vote_count": total_vote_count,
-            "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
+            "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
+            "creator": {
+                "email": creator.email,
+                "username": creator.username,
+                "display_name": creator.display_name,
+                "reputation": creator.reputation,
+                "date_joined": creator.date_joined,
+                "date_last_login": creator.date_last_login,
+                "total_questions": creator.total_questions,
+                "total_answers": creator.total_answers,
+                "total_comments": creator.total_comments,
+                "total_votes": creator.total_votes
+            },
+                
         })
 
     answers = Answer.query.filter_by(question_id=question_id).all()
@@ -72,6 +87,8 @@ def get_question(question_id):
             user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
             user_vote_type = user_vote.vote_type if user_vote else None
 
+            creator = User.query.filter_by(email=c.created_by).first()
+
             # Append the comment details and vote count to the comment list
             comments_list.append({
                 "comment_id": c.comment_id,
@@ -80,8 +97,22 @@ def get_question(question_id):
                 "date_last_edited": c.date_last_edited,
                 "created_by": c.created_by,
                 "total_vote_count": total_vote_count,
-                "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
+                "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
+                "creator": {
+                    "email": creator.email,
+                    "username": creator.username,
+                    "display_name": creator.display_name,
+                    "reputation": creator.reputation,
+                    "date_joined": creator.date_joined,
+                    "date_last_login": creator.date_last_login,
+                    "total_questions": creator.total_questions,
+                    "total_answers": creator.total_answers,
+                    "total_comments": creator.total_comments,
+                    "total_votes": creator.total_votes
+                },
             })
+
+        creator = User.query.filter_by(email=a.created_by).first()
 
         answers_list.append({
             "answer_id": a.answer_id,
@@ -91,8 +122,22 @@ def get_question(question_id):
             "created_by": a.created_by,
             "total_vote_count": total_vote_count,
             "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
-            "comments_list": comments_list
+            "comments_list": comments_list,
+            "creator": {
+                "email": creator.email,
+                "username": creator.username,
+                "display_name": creator.display_name,
+                "reputation": creator.reputation,
+                "date_joined": creator.date_joined,
+                "date_last_login": creator.date_last_login,
+                "total_questions": creator.total_questions,
+                "total_answers": creator.total_answers,
+                "total_comments": creator.total_comments,
+                "total_votes": creator.total_votes
+            },
         })
+
+    creator = User.query.filter_by(email=query.created_by).first()
 
     # Convert results to JSON
 
@@ -107,7 +152,19 @@ def get_question(question_id):
         "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=query.question_id).scalar(),
         "tags": [Tag.query.get(tag).name for tag in query.tags],
         "comments_of_questions_list": comments_of_questions_list,
-        "answers_list": answers_list
+        "answers_list": answers_list,
+        "creator": {
+            "email": creator.email,
+            "username": creator.username,
+            "display_name": creator.display_name,
+            "reputation": creator.reputation,
+            "date_joined": creator.date_joined,
+            "date_last_login": creator.date_last_login,
+            "total_questions": creator.total_questions,
+            "total_answers": creator.total_answers,
+            "total_comments": creator.total_comments,
+            "total_votes": creator.total_votes
+        },
     }
 
     return jsonify(result)
