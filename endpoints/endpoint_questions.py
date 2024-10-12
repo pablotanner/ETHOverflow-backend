@@ -198,12 +198,12 @@ def post_question():
     )
     db.session.add(new_question)
     
-    for tag in data.get('tags', []):
-        tag = Tag.query.get(tag)
+    for tagname in data.get('tags', []):
+        tag = Tag.query.get(tagname)
         if not tag:
-            tag = Tag(name=tag)
+            tag = Tag(name=tagname, questions=[new_question.question_id])
             db.session.add(tag)
-    
+        tag.questions.append(new_question.question_id)
     db.session.commit()
     return jsonify({"message": "Question posted successfully!", "question_id": new_question.question_id}), 201
 
