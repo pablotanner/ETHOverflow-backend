@@ -12,11 +12,6 @@ class User(db.Model):
     display_name = db.Column(db.String, nullable=False)
     date_joined = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_last_login = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    reputation = db.Column(db.Integer, nullable=False, default=0)
-    total_questions = db.Column(db.Integer, nullable=False, default=0)
-    total_answers = db.Column(db.Integer, nullable=False, default=0)
-    total_comments = db.Column(db.Integer, nullable=False, default=0)
-    total_votes = db.Column(db.Integer, nullable=False, default=0)
 
 
 class Question(db.Model):
@@ -29,13 +24,15 @@ class Question(db.Model):
     created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
-    tags = db.Column(ARRAY(db.String), nullable=False)
+    tags = db.Column(ARRAY(db.String), nullable=True)
+    correct_answer_id = db.Column(UUID(as_uuid=True), nullable=True, default=None)
 
 
 class Tag(db.Model):
     __tablename__ = "tags"
 
     name = db.Column(db.String, primary_key=True)
+    questions = db.Column(ARRAY(UUID(as_uuid=True)))
 
 
 class Answer(db.Model):
@@ -49,6 +46,7 @@ class Answer(db.Model):
         UUID(as_uuid=True), db.ForeignKey("questions.question_id"), nullable=False
     )
     content = db.Column(db.Text, nullable=False)
+    accepted = db.Column(db.Boolean, default=False)
 
 
 class Comment(db.Model):

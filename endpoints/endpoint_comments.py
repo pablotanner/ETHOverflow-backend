@@ -4,22 +4,23 @@ from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
+from endpoints import endpoint_votes, endpoint_users
+from model_managers.delete_methods import delete_comment
 
 blueprint_comments = Blueprint("comments", __name__)
 
 
 # Endpoint to post an answer to a question
 @blueprint_comments.route('/api/questions/<string:question_id>/answers/<string:answers_id>/comments', methods=['POST'])
-def post_comment(question_id, answers_id):
+def post_comment_on_answer(question_id, answers_id):
     data = request.get_json()
     new_comment = Comment(
         comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
         content=data['content'],
-        question_id=question_id,
         answer_id=answers_id,
         date_commented=datetime.now(),  # Automatically set the date when the comment is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_comment)
     db.session.commit()
@@ -28,7 +29,7 @@ def post_comment(question_id, answers_id):
 
 # Endpoint to post an answer to a question
 @blueprint_comments.route('/api/questions/<string:question_id>/comments', methods=['POST'])
-def post_comment(question_id):
+def post_comment_on_question(question_id):
     data = request.get_json()
     new_comment = Comment(
         comment_id=str(uuid4()),  # Generate unique UUID for the comment ID
@@ -36,7 +37,7 @@ def post_comment(question_id):
         question_id=question_id,
         date_commented=datetime.now(),  # Automatically set the date when the comment is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     if not data['content']:
         return jsonify({'error': 'Content cannot be empty'}), 400
@@ -60,8 +61,7 @@ def get_comments(question_id, answer_id):
     # Loop through each answer to get its details and vote count
     for c in comments:
         # Calculate the total vote count
-        total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_comment_vote_count(c.comment_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
@@ -109,8 +109,7 @@ def delete_comment(comment_id):
 
     if endpoint_users.get_current_user().get_json()['email'] == comment.created_by:
 
-        db.session.delete(comment)
-        db.session.commit()
+        delete_comment(comment_id)
         return jsonify({"message": "Comment deleted successfully!"})
 
     else:

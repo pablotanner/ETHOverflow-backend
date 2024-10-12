@@ -4,6 +4,8 @@ from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from src import db
+from endpoints import endpoint_votes, endpoint_users
+from model_managers.delete_methods import delete_answer
 
 blueprint_answers = Blueprint("answers", __name__)
 
@@ -17,7 +19,7 @@ def post_answer(question_id):
         question_id=question_id,
         date_answered=datetime.now(),  # Automatically set the date when the answer is posted
         date_last_edited=datetime.now(),  # Initialize with current date and time
-        created_by=data['created_by']  # Use created_by instead of user_id as per schema
+        created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
 
     if not data['content']:
@@ -38,8 +40,7 @@ def get_answers(question_id):
 
     for a in answers:
         # Calculate the total vote count
-        total_vote_count = db.session.query(func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_answer_vote_count(a.answer_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=a.answer_id, created_by=current_user).first()
@@ -85,9 +86,7 @@ def delete_answer(answer_id):
         return jsonify({"error": "Answer not found"}), 404
 
     if endpoint_users.get_current_user().get_json()['email'] == answer.created_by:
-
-        db.session.delete(answer)
-        db.session.commit()
+        delete_answer(answer_id)
         return jsonify({"message": "Answer deleted successfully!"})
     else:
         return jsonify({"error": "User does not have permission to delete answer!"}), 403

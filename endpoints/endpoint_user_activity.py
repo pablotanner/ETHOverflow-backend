@@ -4,6 +4,7 @@ from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from sqlalchemy import func
 from endpoints.endpoint_users import get_current_user
+from endpoints.endpoint_votes import get_user_vote_count
 
 
 blueprint_user_activity = Blueprint("user_activity", __name__)
@@ -25,16 +26,12 @@ def get_user_activity(email):
         "answers": [a.answer_id for a in answers],
         "comments": [c.comment_id for c in comments],
         "votes": [v.vote_id for v in votes],
-        "reputation": user.reputation,
+        "reputation": get_user_vote_count(email).get_json()['total_vote_count'],
         "username": user.username,
         "email": user.email,
         "display_name": user.display_name,
         "date_joined": user.date_joined,
         "date_last_login": user.date_last_login,
-        "total_questions": user.total_questions,
-        "total_answers": user.total_answers,
-        "total_comments": user.total_comments,
-        "total_votes": user.total_votes
     })
     
 @blueprint_user_activity.route('/api/users/activity', methods=['GET'])

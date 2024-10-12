@@ -3,7 +3,8 @@ from datetime import datetime
 from uuid import uuid4
 from flask import request, jsonify, Blueprint
 from src import db
-from endpoints import endpoint_users
+from endpoints import endpoint_users, endpoint_votes
+from model_managers.delete_methods import delete_question
 
 blueprint_questions = Blueprint("questions", __name__)
 
@@ -27,8 +28,7 @@ def get_question(question_id):
     # Loop through each answer to get its details and vote count
     for c in comments:
         # Calculate the total vote count
-        total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_comment_vote_count(c.comment_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
@@ -49,13 +49,9 @@ def get_question(question_id):
                 "email": creator.email,
                 "username": creator.username,
                 "display_name": creator.display_name,
-                "reputation": creator.reputation,
+                "reputation": endpoint_users.get_user_vote_count(c.created_by).get_json()['total_vote_count'],
                 "date_joined": creator.date_joined,
                 "date_last_login": creator.date_last_login,
-                "total_questions": creator.total_questions,
-                "total_answers": creator.total_answers,
-                "total_comments": creator.total_comments,
-                "total_votes": creator.total_votes
             },
                 
         })
@@ -66,21 +62,19 @@ def get_question(question_id):
 
     for a in answers:
         # Calculate the total vote count
-        total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(answer_id=a.answer_id).scalar()
-        total_vote_count = total_vote_count if total_vote_count is not None else 0
+        total_vote_count = endpoint_votes.get_answer_vote_count(a.answer_id).get_json()['total_vote_count']
 
         # Check if current user has voted on this answer
         user_vote = Vote.query.filter_by(answer_id=a.answer_id).first()
         user_vote_type = user_vote.vote_type if user_vote else None
 
-        comments = Comment.query.filter_by(question_id=question_id, answer_id=a.answer_id).all()
+        comments = Comment.query.filter_by(answer_id=a.answer_id).all()
         comments_list = []
 
         # Loop through each answer to get its details and vote count
         for c in comments:
             # Calculate the total vote count
-            total_vote_count = db.session.query(db.func.sum(Vote.vote_type)).filter_by(comment_id=c.comment_id).scalar()
-            total_vote_count = total_vote_count if total_vote_count is not None else 0
+            total_vote_count = endpoint_votes.get_comment_vote_count(c.comment_id).get_json()['total_vote_count']
 
             # Check if current user has voted on this answer
             user_vote = Vote.query.filter_by(answer_id=c.answer_id, created_by=current_user).first()
@@ -101,13 +95,9 @@ def get_question(question_id):
                     "email": creator.email,
                     "username": creator.username,
                     "display_name": creator.display_name,
-                    "reputation": creator.reputation,
+                    "reputation": endpoint_users.get_user_vote_count(c.created_by).get_json()['total_vote_count'],
                     "date_joined": creator.date_joined,
                     "date_last_login": creator.date_last_login,
-                    "total_questions": creator.total_questions,
-                    "total_answers": creator.total_answers,
-                    "total_comments": creator.total_comments,
-                    "total_votes": creator.total_votes
                 },
             })
 
@@ -126,18 +116,16 @@ def get_question(question_id):
                 "email": creator.email,
                 "username": creator.username,
                 "display_name": creator.display_name,
-                "reputation": creator.reputation,
+                "reputation": endpoint_users.get_user_vote_count(creator.email).get_json()['total_vote_count'],
                 "date_joined": creator.date_joined,
                 "date_last_login": creator.date_last_login,
-                "total_questions": creator.total_questions,
-                "total_answers": creator.total_answers,
-                "total_comments": creator.total_comments,
-                "total_votes": creator.total_votes
             },
         })
 
     creator = User.query.filter_by(email=query.created_by).first()
 
+    user_vote = Vote.query.filter_by(question_id=query.question_id, created_by=current_user).first()
+    user_vote_type = user_vote.vote_type if user_vote else None
     # Convert results to JSON
 
     result = {
@@ -148,21 +136,18 @@ def get_question(question_id):
         "date_last_edited": query.date_last_edited,
         "date_closed": query.date_closed,
         "created_by": query.created_by,
-        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(question_id=query.question_id).scalar(),
+        "reputation": endpoint_votes.get_question_vote_count(query.question_id).get_json()['total_vote_count'],
         "tags": [Tag.query.get(tag).name for tag in query.tags],
         "comments_of_questions_list": comments_of_questions_list,
         "answers_list": answers_list,
+        "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
         "creator": {
             "email": creator.email,
             "username": creator.username,
             "display_name": creator.display_name,
-            "reputation": creator.reputation,
+            "reputation": endpoint_users.get_user_vote_count(creator.email).get_json()['total_vote_count'],
             "date_joined": creator.date_joined,
             "date_last_login": creator.date_last_login,
-            "total_questions": creator.total_questions,
-            "total_answers": creator.total_answers,
-            "total_comments": creator.total_comments,
-            "total_votes": creator.total_votes
         },
     }
 
@@ -187,18 +172,23 @@ def get_questions():
     questions = query.limit(limit).all()
 
     # Convert results to JSON
-    questions_list = [{
-        "id": q.question_id,
-        "title": q.title,
-        "content": q.content,
-        "date_asked": q.date_asked,
-        "date_last_edited": q.date_last_edited,
-        "date_closed": q.date_closed,
-        "created_by": q.created_by,
-        "reputation": db.session.query(db.func.coalesce(db.func.sum(Vote.vote_type), 0)).filter_by(
-            question_id=q.question_id).scalar(),
-        "tags": [Tag.query.get(tag).name for tag in q.tags]
-    } for q in questions]
+    questions_list = []
+    for q in questions:
+        user_vote = Vote.query.filter_by(question_id=q.question_id, created_by=endpoint_users.get_current_user().get_json()['email']).first()
+        user_vote = user_vote.vote_type if user_vote else None
+        
+        questions_list.append({
+            "id": q.question_id,
+            "title": q.title,
+            "content": q.content,
+            "date_asked": q.date_asked,
+            "date_last_edited": q.date_last_edited,
+            "date_closed": q.date_closed,
+            "created_by": q.created_by,
+            "user_vote_type": user_vote,
+            "reputation": endpoint_votes.get_question_vote_count(q.question_id).get_json()['total_vote_count'],
+            "tags": [Tag.query.get(tag).name for tag in q.tags]
+        })
 
     return jsonify(questions_list)
 
@@ -225,12 +215,12 @@ def post_question():
 
     db.session.add(new_question)
     
-    for tag in data.get('tags', []):
-        tag = Tag.query.get(tag)
+    for tagname in data.get('tags', []):
+        tag = Tag.query.get(tagname)
         if not tag:
-            tag = Tag(name=tag)
+            tag = Tag(name=tagname, questions=[new_question.question_id])
             db.session.add(tag)
-    
+        tag.questions.append(new_question.question_id)
     db.session.commit()
     return jsonify({"message": "Question posted successfully!", "question_id": new_question.question_id}), 201
 
@@ -260,6 +250,20 @@ def update_question(question_id):
     return jsonify({"message": "Question updated successfully!"})
 
 
+# Endpoint to mark an answer as accepted answer
+@blueprint_questions.route('/api/questions/<string:question_id>/mark-accepted/<string:answer_id>', methods=['PUT'])
+def mark_accepted_answer(question_id, answer_id):
+    question = Question.query().filterby(question_id=question_id).first()
+    if question.correct_answer_id:
+        oldanswer = Answer.query().filterby(answer_id=question.correct_answer_id).first()
+        oldanswer.accepted = False
+    question.correct_answer_id = answer_id
+    if answer_id:
+        answer = Answer.query().filterby(answer_id=answer_id).first()
+        answer.answer_id = True
+    db.session.commit()
+
+
 # Endpoint to delete an existing question specified by question_id
 @blueprint_questions.route('/api/questions/<string:question_id>', methods=['DELETE'])
 def delete_question(question_id):
@@ -268,8 +272,7 @@ def delete_question(question_id):
     if not question:
         return jsonify({"error": "Question not found"}), 404
     if endpoint_users.get_current_user().get_json()['email'] == question.created_by:
-        db.session.delete(question)
-        db.session.commit()
+        delete_question(question_id)
         return jsonify({"message": "Question deleted successfully!"})
     else:
         return jsonify({"error": "You do not have permission to delete this question!"}), 403
