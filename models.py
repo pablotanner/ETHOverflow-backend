@@ -26,6 +26,7 @@ class Question(db.Model):
     content = db.Column(db.Text, nullable=False)
     tags = db.Column(ARRAY(db.String), nullable=True)
     correct_answer_id = db.Column(UUID(as_uuid=True), nullable=True, default=None)
+    embedding =db.Column(ARRAY(db.Float))
 
 
 class Tag(db.Model):
