@@ -6,7 +6,7 @@ blueprint_tags = Blueprint("tags", __name__)
 
 @blueprint_tags.route("/api/tags", methods=['GET'])
 def get_tags():
-    tags = Tags.query().all()
+    tags = Tags.query.all()
     tags_list = [name for name in tags]
     return jsonify(tags_list)
 
