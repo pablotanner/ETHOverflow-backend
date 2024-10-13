@@ -278,6 +278,7 @@ def mark_accepted_answer(question_id, answer_id):
     if answer_id:
         answer = Answer.query.filter_by(answer_id=answer_id).first()
         answer.accepted = True
+    question.date_last_edited = datetime.now()
     db.session.commit()
     
     return  jsonify({"message": "Accepted answer updated successfully!"})

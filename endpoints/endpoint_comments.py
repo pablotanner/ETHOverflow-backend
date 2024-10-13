@@ -23,6 +23,10 @@ def post_comment_on_answer(question_id, answers_id):
         created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_comment)
+    answer = Answer.query.filter_by(answers_id=new_comment.answer_id).first()
+    answer.date_last_edited = datetime.now()
+    question = Question.query.filter_by(question_id=answer.question_id).first()
+    question.date_last_edited = datetime.now()
     db.session.commit()
     return jsonify({"message": "Comment posted successfully!", "comment_id": new_comment.comment_id}), 201
 
@@ -43,6 +47,8 @@ def post_comment_on_question(question_id):
         return jsonify({'error': 'Content cannot be empty'}), 400
 
     db.session.add(new_comment)
+    question = Question.query.filter_by(question_id=new_comment.question_id).first()
+    question.date_last_edited = datetime.now()
     db.session.commit()
     return jsonify({"message": "Comment posted successfully!", "comment_id": new_comment.comment_id}), 201
 
@@ -94,6 +100,14 @@ def update_comment(comment_id):
     if 'content' in data:
         comment.content = data['content']
     comment.date_last_edited = datetime.now()  # Update with current time
+
+    if comment.question_id:
+        question = Question.query.filter_by(question_id=comment.question_id).first()
+        question.date_last_edited = datetime.now()
+
+    if comment.answer_id:
+        answer = Answer.query.filter_by(answer_id=comment.answer_id).first()
+        answer.date_last_edited = datetime.now()
 
     db.session.commit()
     return jsonify({"message": "Comment updated successfully!"})
