@@ -112,6 +112,7 @@ def get_question(question_id):
             "total_vote_count": total_vote_count,
             "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
             "comments_list": comments_list,
+            "accepted": a.accepted,
             "creator": {
                 "email": creator.email,
                 "username": creator.username,
