@@ -1,7 +1,7 @@
 from src.database import db
 import uuid
 import datetime
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import UUID, ARRAY, TSVECTOR
 
 
 class User(db.Model):
@@ -24,9 +24,14 @@ class Question(db.Model):
     created_by = db.Column(db.String, db.ForeignKey("users.email"), nullable=False)
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
-    tags = db.Column(ARRAY(db.String), nullable=True)
+    tags = db.Column(ARRAY(db.String), nullable=False)
     correct_answer_id = db.Column(UUID(as_uuid=True), nullable=True, default=None)
     embedding =db.Column(ARRAY(db.Float))
+    search_vector = db.Column(TSVECTOR)  # Store the search vector
+
+    __table_args__ = (
+        db.Index('ix_question_search', 'search_vector', postgresql_using='gin'),
+    )
 
 
 class Tag(db.Model):
