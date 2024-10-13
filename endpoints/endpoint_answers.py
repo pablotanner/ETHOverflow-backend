@@ -53,7 +53,8 @@ def get_answers(question_id):
             "date_last_edited": a.date_last_edited,
             "created_by": a.created_by,
             "total_vote_count": total_vote_count,
-            "user_vote_type": user_vote_type  # 1 for upvote, -1 for downvote, or None
+            "user_vote_type": user_vote_type,  # 1 for upvote, -1 for downvote, or None
+            "accepted": a.accepted
         })
 
     return jsonify(answers_list)
