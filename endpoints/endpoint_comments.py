@@ -23,7 +23,7 @@ def post_comment_on_answer(question_id, answers_id):
         created_by=endpoint_users.get_current_user().get_json()['email']  # Use created_by instead of user_id as per schema
     )
     db.session.add(new_comment)
-    answer = Answer.query.filter_by(answers_id=new_comment.answer_id).first()
+    answer = Answer.query.filter_by(answer_id=new_comment.answer_id).first()
     answer.date_last_edited = datetime.now()
     question = Question.query.filter_by(question_id=answer.question_id).first()
     question.date_last_edited = datetime.now()

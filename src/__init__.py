@@ -194,128 +194,130 @@ def seed_db():
     db.session.commit()
 
     # Define some initial questions
-    questions = questions = [
+    questions = [
         {
-            "title": "What are the health benefits of a Mediterranean diet?",
-            "content": "I've heard a lot about the Mediterranean diet. What are its benefits?",
+            "title": "What are some effective strategies for competitive programming?",
+            "content": "I want to improve my skills in competitive programming. Any tips?",
             "created_by": "jdoe@example.com",
-            "tags": ["Health", "Nutrition", "Diet"],
+            "tags": ["Competitive Programming", "Algorithms", "Data Structures"],
         },
         {
-            "title": "How does quantum computing differ from classical computing?",
-            "content": "I'm interested in understanding the basic principles of quantum computing.",
+            "title": "How do distributed systems handle fault tolerance?",
+            "content": "I'm curious about the mechanisms used in distributed systems to ensure reliability.",
             "created_by": "asmith@example.com",
-            "tags": ["Technology", "Quantum Computing", "Science"],
+            "tags": ["Distributed Systems", "Fault Tolerance", "Networking"],
         },
         {
-            "title": "Who was the first woman to fly solo across the Atlantic?",
-            "content": "I want to know more about the achievements of pioneering aviators.",
+            "title": "What are some best practices for cybersecurity in IoT?",
+            "content": "I'm working on an IoT project and want to ensure it's secure. Any guidance?",
             "created_by": "bwilliams@example.com",
-            "tags": ["History", "Aviation", "Women"],
+            "tags": ["IoT", "Cybersecurity", "Best Practices"],
         },
         {
-            "title": "What causes seasonal allergies?",
-            "content": "Every spring, I suffer from allergies. What triggers them?",
+            "title": "How does functional programming differ from object-oriented programming?",
+            "content": "I'm trying to understand the main differences between these two paradigms.",
             "created_by": "jdoe@example.com",
-            "tags": ["Health", "Allergies", "Medicine"],
+            "tags": ["Functional Programming", "Object-Oriented Programming", "Programming Paradigms"],
         },
         {
-            "title": "Can AI help with climate change?",
-            "content": "I've read that AI is being used in environmental science. How does it help with climate change?",
+            "title": "What are the key principles of agile software development?",
+            "content": "I want to understand how agile methodology works and its benefits for software projects.",
             "created_by": "asmith@example.com",
-            "tags": ["Technology", "AI", "Environment"],
+            "tags": ["Agile", "Software Development", "Project Management"],
         },
         {
-            "title": "What are the basic principles of the Theory of Relativity?",
-            "content": "Can someone explain Einstein's Theory of Relativity in simple terms?",
+            "title": "How can I optimize SQL queries for large databases?",
+            "content": "I'm working with a large database and want to improve query performance.",
             "created_by": "bwilliams@example.com",
-            "tags": ["Physics", "Science", "Relativity"],
+            "tags": ["SQL", "Databases", "Optimization"],
         },
         {
-            "title": "How do plants use photosynthesis?",
-            "content": "I am curious about how plants convert sunlight into energy.",
+            "title": "What are the ethical implications of AI in healthcare?",
+            "content": "I'm interested in how AI impacts privacy and ethics in healthcare.",
             "created_by": "jdoe@example.com",
-            "tags": ["Biology", "Science", "Photosynthesis"],
+            "tags": ["AI", "Healthcare", "Ethics"],
         },
         {
-            "title": "What are the major causes of World War I?",
-            "content": "I'm interested in understanding the events that led to the outbreak of WWI.",
+            "title": "How does Ethereum differ from Bitcoin in terms of blockchain technology?",
+            "content": "I want to understand the technical differences between Ethereum and Bitcoin.",
             "created_by": "asmith@example.com",
-            "tags": ["History", "World War I", "Politics"],
+            "tags": ["Blockchain", "Ethereum", "Bitcoin"],
         },
         {
-            "title": "How can meditation reduce stress?",
-            "content": "I've heard meditation is good for stress relief. How does it work?",
+            "title": "What are some common techniques for 3D rendering in computer graphics?",
+            "content": "I'm curious about the basic methods used for 3D rendering.",
             "created_by": "bwilliams@example.com",
-            "tags": ["Health", "Wellness", "Meditation"],
+            "tags": ["Computer Graphics", "3D Rendering", "Rendering Techniques"],
         },
         {
-            "title": "What are the steps in the water cycle?",
-            "content": "I'd like a basic explanation of how the water cycle works.",
+            "title": "How can I set up a CI/CD pipeline for my project?",
+            "content": "I need help setting up continuous integration and delivery for my web application.",
             "created_by": "jdoe@example.com",
-            "tags": ["Geography", "Science", "Water Cycle"],
+            "tags": ["CI/CD", "DevOps", "Automation"],
         },
         {
-            "title": "How does the stock market work?",
-            "content": "Can someone explain the basics of how the stock market functions?",
+            "title": "What are the benefits and challenges of cloud computing?",
+            "content": "I'm interested in the advantages and potential issues with using cloud services.",
             "created_by": "asmith@example.com",
-            "tags": ["Finance", "Economics", "Investing"],
+            "tags": ["Cloud Computing", "Benefits", "Challenges"],
         },
         {
-            "title": "What were the major achievements of the Roman Empire?",
-            "content": "I'd like to know more about the Roman Empire's contributions to the modern world.",
+            "title": "How can I get started with quantum computing?",
+            "content": "I'm fascinated by quantum computing and want to learn the basics.",
             "created_by": "bwilliams@example.com",
-            "tags": ["History", "Ancient Rome", "Civilization"],
+            "tags": ["Quantum Computing", "Beginners", "Computing"],
         },
         {
-            "title": "How do vaccines work to protect against diseases?",
-            "content": "I'm curious about the science behind vaccines and how they provide immunity.",
+            "title": "What are some common techniques for reverse engineering?",
+            "content": "I'm interested in understanding how reverse engineering is used in software analysis.",
             "created_by": "jdoe@example.com",
-            "tags": ["Health", "Medicine", "Vaccines"],
+            "tags": ["Reverse Engineering", "Software Analysis", "Security"],
         },
         {
-            "title": "What is the significance of the Renaissance period?",
-            "content": "I want to understand the cultural and historical impact of the Renaissance.",
+            "title": "How does natural language processing differ from traditional linguistics?",
+            "content": "I'm curious about the differences between NLP and linguistics in terms of their goals and methods.",
             "created_by": "asmith@example.com",
-            "tags": ["History", "Art", "Renaissance"],
+            "tags": ["NLP", "Linguistics", "AI"],
         },
         {
-            "title": "What is blockchain technology?",
-            "content": "How does blockchain work, and what are its applications outside of cryptocurrency?",
+            "title": "What is homomorphic encryption, and how is it applied?",
+            "content": "I'm interested in learning about homomorphic encryption and its use cases.",
             "created_by": "bwilliams@example.com",
-            "tags": ["Technology", "Blockchain", "Cryptocurrency"],
+            "tags": ["Encryption", "Homomorphic Encryption", "Cryptography"],
         },
         {
-            "title": "How do animals adapt to survive in extreme environments?",
-            "content": "I'm interested in learning about animal adaptations in harsh climates.",
+            "title": "How can I contribute to open-source projects as a beginner?",
+            "content": "I want to start contributing to open-source, but I'm not sure where to begin.",
             "created_by": "jdoe@example.com",
-            "tags": ["Biology", "Animals", "Adaptation"],
+            "tags": ["Open Source", "Beginners", "Software Development"],
         },
         {
-            "title": "What were the causes and effects of the Industrial Revolution?",
-            "content": "Can someone explain the main causes and consequences of the Industrial Revolution?",
+            "title": "What are the principles of UX design for mobile applications?",
+            "content": "I'm working on a mobile app and want to ensure a good user experience.",
             "created_by": "asmith@example.com",
-            "tags": ["History", "Industrial Revolution", "Economics"],
+            "tags": ["UX Design", "Mobile Apps", "User Experience"],
         },
         {
-            "title": "How does the human brain process emotions?",
-            "content": "I'd like to know more about the neuroscience behind emotional processing.",
+            "title": "What are the basics of Bayesian statistics?",
+            "content": "I want to understand the fundamentals of Bayesian approaches in statistics.",
             "created_by": "bwilliams@example.com",
-            "tags": ["Science", "Neuroscience", "Psychology"],
+            "tags": ["Bayesian Statistics", "Statistics", "Data Science"],
         },
         {
-            "title": "What is the process of photosynthesis?",
-            "content": "Can someone explain the photosynthesis process in plants?",
+            "title": "How does blockchain technology support decentralized finance (DeFi)?",
+            "content": "I'm curious about how blockchain enables DeFi and its potential impact.",
             "created_by": "jdoe@example.com",
-            "tags": ["Biology", "Plants", "Photosynthesis"],
+            "tags": ["Blockchain", "DeFi", "Finance"],
         },
         {
-            "title": "How do electric cars work?",
-            "content": "I'm curious about the technology behind electric vehicles and how they differ from traditional cars.",
+            "title": "What are the best practices for securing a REST API?",
+            "content": "I'm developing a REST API and want to ensure it's secure against attacks.",
             "created_by": "asmith@example.com",
-            "tags": ["Technology", "Electric Vehicles", "Environment"],
+            "tags": ["API Security", "REST API", "Web Security"],
         }
     ]
+
+
 
     # Define some initial tags
     tags = set()
@@ -350,7 +352,7 @@ def seed_db():
         {
             "content": "SQLAlchemy is an ORM for Python.",
             "created_by": "jdoe@example.com",
-            "question_id": Question.query.filter_by(title="What is blockchain technology?")
+            "question_id": Question.query.filter_by(title="What are the basics of Bayesian statistics?")
             .first()
             .question_id,
         },
@@ -377,7 +379,7 @@ def seed_db():
             "content": "This is very helpful.",
             "created_by": "bwilliams@example.com",
             "question_id": Question.query.filter_by(
-                title="What is blockchain technology?"
+                title="What are the basics of Bayesian statistics?"
             )
             .first()
             .question_id,
