@@ -213,15 +213,15 @@ def post_question():
 
     if not data['title']:
         return jsonify({'error': 'Title cannot be empty'}), 400
-
-    db.session.add(new_question)
     
     for tagname in data.get('tags', []):
-        tag = Tag.query.get(tagname)
+        tag = Tag.query.filterby(name=tagname).first()
         if not tag:
             tag = Tag(name=tagname, questions=[new_question.question_id])
             db.session.add(tag)
         tag.questions.append(new_question.question_id)
+
+    db.session.add(new_question)
     db.session.commit()
     return jsonify({"message": "Question posted successfully!", "question_id": new_question.question_id}), 201
 
