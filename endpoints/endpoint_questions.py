@@ -170,14 +170,19 @@ def get_questions():
         query = query.filter_by(question_id=question_id)
 
     # Limit the number of questions returned
+    
     if limit:
         questions = query.limit(limit).all()
+    else:
+        questions = query.all()
 
     # Convert results to JSON
     questions_list = []
     for q in questions:
         user_vote = Vote.query.filter_by(question_id=q.question_id, created_by=endpoint_users.get_current_user().get_json()['email']).first()
         user_vote = user_vote.vote_type if user_vote else None
+        
+        creator = User.query.filter_by(email=q.created_by).first()
         
         questions_list.append({
             "id": q.question_id,
@@ -189,7 +194,15 @@ def get_questions():
             "created_by": q.created_by,
             "user_vote_type": user_vote,
             "reputation": endpoint_votes.get_question_vote_count(q.question_id).get_json()['total_vote_count'],
-            "tags": [Tag.query.get(tag).name for tag in q.tags]
+            "tags": [Tag.query.get(tag).name for tag in q.tags],
+            "creator": {
+                "email": creator.email,
+                "username": creator.username,
+                "display_name": creator.display_name,
+                "reputation": endpoint_users.get_user_vote_count(creator.email).get_json()['total_vote_count'],
+                "date_joined": creator.date_joined,
+                "date_last_login": creator.date_last_login,
+            },
         })
 
     return jsonify(questions_list)
@@ -216,7 +229,7 @@ def post_question():
         return jsonify({'error': 'Title cannot be empty'}), 400
     
     for tagname in data.get('tags', []):
-        tag = Tag.query.filterby(name=tagname).first()
+        tag = Tag.query.filter_by(name=tagname).first()
         if not tag:
             tag = Tag(name=tagname, questions=[new_question.question_id])
             db.session.add(tag)

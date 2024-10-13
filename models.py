@@ -28,9 +28,11 @@ class Question(db.Model):
     correct_answer_id = db.Column(UUID(as_uuid=True), nullable=True, default=None)
     embedding =db.Column(ARRAY(db.Float))
     search_vector = db.Column(TSVECTOR)  # Store the search vector
+    tag_vector = db.Column(TSVECTOR)
 
     __table_args__ = (
         db.Index('ix_question_search', 'search_vector', postgresql_using='gin'),
+        db.Index('ix_question_tag', 'tag_vector', postgresql_using='gin'),
     )
 
 
