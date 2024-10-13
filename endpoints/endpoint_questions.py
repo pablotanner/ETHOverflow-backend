@@ -159,7 +159,7 @@ def get_question(question_id):
 @blueprint_questions.route('/api/questions', methods=['GET'])
 def get_questions():
     # Get query parameters
-    limit = request.args.get('limit', default=10, type=int)
+    limit = request.args.get('limit', default=None, type=int)
     question_id = request.args.get('question_id', type=str)  # UUID is a string
 
     # Base query
@@ -170,7 +170,8 @@ def get_questions():
         query = query.filter_by(question_id=question_id)
 
     # Limit the number of questions returned
-    questions = query.limit(limit).all()
+    if limit:
+        questions = query.limit(limit).all()
 
     # Convert results to JSON
     questions_list = []
