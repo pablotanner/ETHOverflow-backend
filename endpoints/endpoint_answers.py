@@ -25,6 +25,9 @@ def post_answer(question_id):
     if not data['content']:
         return jsonify({'error': 'Content cannot be empty'}), 400
 
+    question = Question.query.filter_by(question_id=question_id).first()
+    question.date_last_edited = datetime.now()
+
     db.session.add(new_answer)
     db.session.commit()
     return jsonify({"message": "Answer posted successfully!", "answer_id": new_answer.answer_id}), 201
@@ -73,6 +76,9 @@ def update_answer(answer_id):
     if 'content' in data:
         answer.content = data['content']
     answer.date_last_edited = datetime.now()  # Update with current time
+
+    question = Question.query.filter_by(question_id=answer.question_id).first()
+    question.date_last_edited = datetime.now()
 
     db.session.commit()
     return jsonify({"message": "Answer updated successfully!"})
