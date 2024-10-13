@@ -10,12 +10,13 @@ def get_tags():
     tags_list = [name for name in tags]
     return jsonify(tags_list)
 
+
 @blueprint_tags.route("/api/tags/<string:name>", methods=['GET'])
 def tags_get_questions(name):
-    tags = Tags.query().filterby(name=name).first()
+    tags = Tags.query.filter_by(name=name).first()
     questions_list = []
     for question_id in tags.questions:
-        q = Question.query().filterby(question_id=question_id).first()
+        q = Question.query.filter_by(question_id=question_id).first()
         question_json = {
             "id": q.question_id,
             "title": q.title,
