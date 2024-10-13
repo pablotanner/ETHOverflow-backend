@@ -3,6 +3,7 @@ from transformers import BertModel, BertTokenizer
 import torch
 import numpy as np
 from sqlalchemy import event
+from sqlalchemy.sql import func
 from models import Question, Tag, Vote
 from endpoints import endpoint_users
 from endpoints import endpoint_votes
@@ -14,6 +15,10 @@ model_name = 'bert-base-uncased'
 tokenizer = BertTokenizer.from_pretrained(model_name)
 model = BertModel.from_pretrained(model_name)
 
+def generate_search_vector(target):
+    text = target.title + " " + target.content + " " + " ".join(target.tags)
+    return func.to_tsvector('english', text)
+
 def generate_embedding(text):
     inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
     with torch.no_grad():
@@ -21,12 +26,15 @@ def generate_embedding(text):
     return outputs.last_hidden_state.mean(dim=1).squeeze().numpy()
 
 def before_insert_listener(mapper, connection, target):
-    text = target.title + " " + target.content
+    target.search_vector = generate_search_vector(target)
+    text = target.title + " " + target.content + " " + " ".join(target.tags)
     target.embedding = generate_embedding(text).tolist()
 
 def before_update_listener(mapper, connection, target):
-    text = target.title + " " + target.content
+    target.search_vector = generate_search_vector(target)
+    text = target.title + " " + target.content + " " + " ".join(target.tags)
     target.embedding = generate_embedding(text).tolist()
+
 
 # Attach the event listeners to the Question model
 event.listen(Question, 'before_insert', before_insert_listener)
@@ -35,19 +43,36 @@ event.listen(Question, 'before_update', before_update_listener)
 @blueprint_search.route("/api/search", methods=['GET'])
 def search():
     query = request.args.get('query', type=str)
-    query_embedding = generate_embedding(query)
+    ts_query = func.plainto_tsquery('english', query)
+    full_text_results = Question.query.filter(Question.search_vector.op('@@')(ts_query)).all()
     
-    questions = Question.query.all()
-    similarities = []
-    for q in questions:
+    query_embedding = generate_embedding(query)
+    semantic_results = []
+    for q in Question.query.all():
         question_embedding = np.array(q.embedding)
         similarity = np.dot(query_embedding, question_embedding) / (np.linalg.norm(query_embedding) * np.linalg.norm(question_embedding))
-        similarities.append((q, similarity))
+        semantic_results.append((q, similarity))
     
-    # Sort questions by similarity
-    similarities.sort(key=lambda x: x[1], reverse=True)
+    # Sort semantic results by similarity
+    semantic_results.sort(key=lambda x: x[1], reverse=True)
+    
+    # Combine results
+    combined_results = {}
+    for q in full_text_results:
+        combined_results[q.question_id] = {'question': q, 'score': 1.0}  # Full-text search score
+    
+    for q, similarity in semantic_results:
+        if q.question_id in combined_results:
+            combined_results[q.question_id]['score'] += similarity  # Combine scores
+        else:
+            combined_results[q.question_id] = {'question': q, 'score': similarity}
+    
+    # Sort combined results by score
+    sorted_combined_results = sorted(combined_results.values(), key=lambda x: x['score'], reverse=True)
+    
     questions_list = []
-    for q, similarity in similarities[:10]:  # Return top 10 results
+    for result in sorted_combined_results[:10]:  # Return top 10 results
+        q = result['question']
         user_vote = Vote.query.filter_by(question_id=q.question_id, created_by=endpoint_users.get_current_user().get_json()['email']).first()
         user_vote = user_vote.vote_type if user_vote else None
         question_json = {
@@ -63,4 +88,6 @@ def search():
             "tags": [Tag.query.get(tag).name for tag in q.tags]
         }
         questions_list.append(question_json)
+
+    
     return jsonify(questions_list)

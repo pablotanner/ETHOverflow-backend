@@ -193,35 +193,141 @@ def seed_db():
         db.session.add(user)
     db.session.commit()
 
-    # Define some initial tags
-    tags = [
-        {"name": "Python"},
-        {"name": "Flask"},
-        {"name": "SQLAlchemy"},
-        {"name": "PostgreSQL"},
+    # Define some initial questions
+    questions = questions = [
+        {
+            "title": "What are the health benefits of a Mediterranean diet?",
+            "content": "I've heard a lot about the Mediterranean diet. What are its benefits?",
+            "created_by": "jdoe@example.com",
+            "tags": ["Health", "Nutrition", "Diet"],
+        },
+        {
+            "title": "How does quantum computing differ from classical computing?",
+            "content": "I'm interested in understanding the basic principles of quantum computing.",
+            "created_by": "asmith@example.com",
+            "tags": ["Technology", "Quantum Computing", "Science"],
+        },
+        {
+            "title": "Who was the first woman to fly solo across the Atlantic?",
+            "content": "I want to know more about the achievements of pioneering aviators.",
+            "created_by": "bwilliams@example.com",
+            "tags": ["History", "Aviation", "Women"],
+        },
+        {
+            "title": "What causes seasonal allergies?",
+            "content": "Every spring, I suffer from allergies. What triggers them?",
+            "created_by": "jdoe@example.com",
+            "tags": ["Health", "Allergies", "Medicine"],
+        },
+        {
+            "title": "Can AI help with climate change?",
+            "content": "I've read that AI is being used in environmental science. How does it help with climate change?",
+            "created_by": "asmith@example.com",
+            "tags": ["Technology", "AI", "Environment"],
+        },
+        {
+            "title": "What are the basic principles of the Theory of Relativity?",
+            "content": "Can someone explain Einstein's Theory of Relativity in simple terms?",
+            "created_by": "bwilliams@example.com",
+            "tags": ["Physics", "Science", "Relativity"],
+        },
+        {
+            "title": "How do plants use photosynthesis?",
+            "content": "I am curious about how plants convert sunlight into energy.",
+            "created_by": "jdoe@example.com",
+            "tags": ["Biology", "Science", "Photosynthesis"],
+        },
+        {
+            "title": "What are the major causes of World War I?",
+            "content": "I'm interested in understanding the events that led to the outbreak of WWI.",
+            "created_by": "asmith@example.com",
+            "tags": ["History", "World War I", "Politics"],
+        },
+        {
+            "title": "How can meditation reduce stress?",
+            "content": "I've heard meditation is good for stress relief. How does it work?",
+            "created_by": "bwilliams@example.com",
+            "tags": ["Health", "Wellness", "Meditation"],
+        },
+        {
+            "title": "What are the steps in the water cycle?",
+            "content": "I'd like a basic explanation of how the water cycle works.",
+            "created_by": "jdoe@example.com",
+            "tags": ["Geography", "Science", "Water Cycle"],
+        },
+        {
+            "title": "How does the stock market work?",
+            "content": "Can someone explain the basics of how the stock market functions?",
+            "created_by": "asmith@example.com",
+            "tags": ["Finance", "Economics", "Investing"],
+        },
+        {
+            "title": "What were the major achievements of the Roman Empire?",
+            "content": "I'd like to know more about the Roman Empire's contributions to the modern world.",
+            "created_by": "bwilliams@example.com",
+            "tags": ["History", "Ancient Rome", "Civilization"],
+        },
+        {
+            "title": "How do vaccines work to protect against diseases?",
+            "content": "I'm curious about the science behind vaccines and how they provide immunity.",
+            "created_by": "jdoe@example.com",
+            "tags": ["Health", "Medicine", "Vaccines"],
+        },
+        {
+            "title": "What is the significance of the Renaissance period?",
+            "content": "I want to understand the cultural and historical impact of the Renaissance.",
+            "created_by": "asmith@example.com",
+            "tags": ["History", "Art", "Renaissance"],
+        },
+        {
+            "title": "What is blockchain technology?",
+            "content": "How does blockchain work, and what are its applications outside of cryptocurrency?",
+            "created_by": "bwilliams@example.com",
+            "tags": ["Technology", "Blockchain", "Cryptocurrency"],
+        },
+        {
+            "title": "How do animals adapt to survive in extreme environments?",
+            "content": "I'm interested in learning about animal adaptations in harsh climates.",
+            "created_by": "jdoe@example.com",
+            "tags": ["Biology", "Animals", "Adaptation"],
+        },
+        {
+            "title": "What were the causes and effects of the Industrial Revolution?",
+            "content": "Can someone explain the main causes and consequences of the Industrial Revolution?",
+            "created_by": "asmith@example.com",
+            "tags": ["History", "Industrial Revolution", "Economics"],
+        },
+        {
+            "title": "How does the human brain process emotions?",
+            "content": "I'd like to know more about the neuroscience behind emotional processing.",
+            "created_by": "bwilliams@example.com",
+            "tags": ["Science", "Neuroscience", "Psychology"],
+        },
+        {
+            "title": "What is the process of photosynthesis?",
+            "content": "Can someone explain the photosynthesis process in plants?",
+            "created_by": "jdoe@example.com",
+            "tags": ["Biology", "Plants", "Photosynthesis"],
+        },
+        {
+            "title": "How do electric cars work?",
+            "content": "I'm curious about the technology behind electric vehicles and how they differ from traditional cars.",
+            "created_by": "asmith@example.com",
+            "tags": ["Technology", "Electric Vehicles", "Environment"],
+        }
     ]
+
+    # Define some initial tags
+    tags = set()
+    for question_data in questions:
+        tags.update(question_data["tags"])
+    tags = [{"name": tag} for tag in tags]
 
     # Insert tags into the database
     for tag_data in tags:
         tag = Tag(name=tag_data["name"])
         db.session.add(tag)
     db.session.commit()
-
-    # Define some initial questions
-    questions = [
-        {
-            "title": "How to use Flask with PostgreSQL?",
-            "content": "I need help with setting up Flask and PostgreSQL.",
-            "created_by": "jdoe@example.com",
-            "tags": ["Python", "Flask", "PostgreSQL"],  # Assuming IDs of tags
-        },
-        {
-            "title": "What is SQLAlchemy?",
-            "content": "Can someone explain SQLAlchemy ORM?",
-            "created_by": "asmith@example.com",
-            "tags": ["SQLAlchemy", "PostgreSQL"],
-        },
-    ]
 
     # Insert questions into the database
     for question_data in questions:
@@ -244,7 +350,7 @@ def seed_db():
         {
             "content": "SQLAlchemy is an ORM for Python.",
             "created_by": "jdoe@example.com",
-            "question_id": Question.query.filter_by(title="What is SQLAlchemy?")
+            "question_id": Question.query.filter_by(title="What is blockchain technology?")
             .first()
             .question_id,
         },
@@ -271,7 +377,7 @@ def seed_db():
             "content": "This is very helpful.",
             "created_by": "bwilliams@example.com",
             "question_id": Question.query.filter_by(
-                title="How to use Flask with PostgreSQL?"
+                title="What is blockchain technology?"
             )
             .first()
             .question_id,
