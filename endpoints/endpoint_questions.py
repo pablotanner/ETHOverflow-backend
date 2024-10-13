@@ -255,8 +255,8 @@ def update_question(question_id):
 @blueprint_questions.route('/api/questions/<string:question_id>/mark-accepted/<string:answer_id>', methods=['PUT'])
 def mark_accepted_answer(question_id, answer_id):
     question = Question.query.filter_by(question_id=question_id).first()
-    if question.created_by is not endpoint_users.get_current_user().get_json()['email']:
-        return jsonify({"message": "You do not have permission to mark the accepted answer on this question!"})
+    if question.created_by != endpoint_users.get_current_user().get_json()['email']:
+        return jsonify({"message": "You do not have permission to mark the accepted answer on this question!"}), 403
     if question.correct_answer_id:
         oldanswer = Answer.query.filter_by(answer_id=question.correct_answer_id).first()
         oldanswer.accepted = False
